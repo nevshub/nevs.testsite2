@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Home</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Welcome to the Home Page</h1>
+
+  <div id="streamSection" style="margin-top:30px; display:none;">
+    <h2>Admin Streaming</h2>
+    <button id="startStreamBtn" class="button">Start Stream</button>
+    <button id="stopStreamBtn" class="button" style="display:none;">Stop Stream</button>
+    <video id="liveStream" autoplay playsinline style="width:100%; max-width:700px; margin-top:20px; border-radius:8px;"></video>
+    
+    <h3>Stream History</h3>
+    <ul id="streamList" style="list-style:none; padding:0;"></ul>
+  </div>
+
+  <script src="home.js"></script>
+</body>
+</html>
