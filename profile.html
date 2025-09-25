@@ -2,43 +2,103 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Profile</title>
+  <title>Your Profile</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .profile-container {
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #1c1c1c;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .profile-container input,
+    .profile-container textarea {
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #2a2a2a;
+      color: #fff;
+    }
+    .profile-container button {
+      background: #444;
+      color: #fff;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .profile-container button:hover {
+      background: #666;
+    }
+    .profile-display {
+      margin-top: 20px;
+      padding: 15px;
+      background: #2a2a2a;
+      border-radius: 8px;
+    }
+    .profile-display img {
+      max-width: 100px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>My Profile</h1>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="news.html">News</a>
-      <a href="music.html">Music</a>
-      <a href="profile.html">Profile</a>
-    </nav>
-  </header>
+  <div class="profile-container">
+    <h2>Create / Edit Profile</h2>
+    <input type="text" id="username" placeholder="Enter your name">
+    <textarea id="bio" placeholder="Enter a short bio"></textarea>
+    <input type="file" id="avatar" accept="image/*">
+    <button onclick="saveProfile()">Save Profile</button>
 
-  <main>
-    <section id="profile-settings">
-      <h2>Edit Profile</h2>
-      <input type="text" id="displayName" placeholder="Your Name">
-      <input type="file" id="profilePicInput" accept="image/*">
-      <input type="file" id="coverPicInput" accept="image/*">
-      <button id="saveProfile">Save Profile</button>
-    </section>
+    <div class="profile-display" id="profileDisplay" style="display:none;">
+      <h3 id="displayName"></h3>
+      <img id="displayAvatar" src="" alt="Profile Picture">
+      <p id="displayBio"></p>
+    </div>
+  </div>
 
-    <section id="profile-view" style="margin-top:20px;">
-      <img id="coverPic" style="width:100%; max-height:200px; object-fit:cover; border-radius:12px;">
-      <img id="profilePic" style="width:120px; height:120px; border-radius:50%; margin-top:-60px; border:4px solid #111;">
-      <h2 id="profileName"></h2>
-    </section>
+  <script>
+    function saveProfile() {
+      const username = document.getElementById('username').value;
+      const bio = document.getElementById('bio').value;
+      const avatarFile = document.getElementById('avatar').files[0];
 
-    <section id="myPosts" style="margin-top:30px;">
-      <h2>My Posts</h2>
-      <input type="text" id="newPost" placeholder="Write a post...">
-      <button id="postBtn">Post</button>
-      <ul id="postList" style="list-style:none; padding:0;"></ul>
-    </section>
-  </main>
+      if (avatarFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const avatarUrl = e.target.result;
+          localStorage.setItem('profile', JSON.stringify({ username, bio, avatarUrl }));
+          loadProfile();
+        };
+        reader.readAsDataURL(avatarFile);
+      } else {
+        const saved = JSON.parse(localStorage.getItem('profile')) || {};
+        localStorage.setItem('profile', JSON.stringify({ username, bio, avatarUrl: saved.avatarUrl || "" }));
+        loadProfile();
+      }
+    }
 
-  <script src="profile.js"></script>
+    function loadProfile() {
+      const profile = JSON.parse(localStorage.getItem('profile'));
+      if (profile) {
+        document.getElementById('displayName').textContent = profile.username;
+        document.getElementById('displayBio').textContent = profile.bio;
+        if (profile.avatarUrl) {
+          document.getElementById('displayAvatar').src = profile.avatarUrl;
+          document.getElementById('displayAvatar').style.display = 'block';
+        } else {
+          document.getElementById('displayAvatar').style.display = 'none';
+        }
+        document.getElementById('profileDisplay').style.display = 'block';
+      }
+    }
+
+    window.onload = loadProfile;
+  </script>
 </body>
 </html>
