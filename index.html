@@ -18,9 +18,8 @@
   </header>
 
   <main>
-    <section id="live-stream">
+    <section id="stream-section">
       <h2>Live Stream</h2>
-      <video id="streamVideo" autoplay playsinline></video>
       <button id="joinStream">Join Stream</button>
     </section>
 
@@ -31,6 +30,14 @@
       <button id="postBtn">Post</button>
     </section>
   </main>
+
+  <!-- Stream popup modal -->
+  <div id="streamModal" class="modal">
+    <div class="modal-content">
+      <span id="closeModal">&times;</span>
+      <video id="streamVideo" autoplay playsinline></video>
+    </div>
+  </div>
 
   <script src="main.js"></script>
 </body>
