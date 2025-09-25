@@ -1,152 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Home</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Grove Stream</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>Welcome to Nev's Website</h1>
+    <h1>Welcome to Grove</h1>
     <nav>
       <a href="index.html">Home</a>
       <a href="news.html">News</a>
       <a href="music.html">Music</a>
-      <a href="updates.html">Updates</a>
-      <a href="about.html">About</a>
       <a href="profile.html">Profile</a>
       <a href="admin.html">Admin</a>
     </nav>
   </header>
 
   <main>
-    <section>
-      <h2>Introduction</h2>
-      <p>This is Nev’s official site, now with music, streaming, and updates all in one place.</p>
+    <section id="live-stream">
+      <h2>Live Stream</h2>
+      <video id="streamVideo" autoplay playsinline></video>
+      <button id="joinStream">Join Stream</button>
     </section>
-
-    <!-- Stream Section (Admin only) -->
-    <div id="streamSection" style="margin-top:30px; display:none;">
-      <h2>Admin Streaming</h2>
-      <button id="startStreamBtn" class="button">Start Stream</button>
-      <button id="stopStreamBtn" class="button" style="display:none;">Stop Stream</button>
-      <video id="liveStream" autoplay playsinline style="width:100%; max-width:700px; margin-top:20px; border-radius:8px;"></video>
-      
-      <h3>Stream History</h3>
-      <ul id="streamList" style="list-style:none; padding:0;"></ul>
-    </div>
+    <section id="news-feed">
+      <h2>News Feed</h2>
+      <div id="feed"></div>
+      <input type="text" id="newPost" placeholder="Write a post...">
+      <button id="postBtn">Post</button>
+    </section>
   </main>
 
-  <script>
-    const ADMIN_PASSWORD = "Nev123";
-    let role = localStorage.getItem("userRole") || "guest";
-
-    // Prompt login
-    if(role !== "member") {
-      const input = prompt("Enter Admin password (leave empty if guest):");
-      if(input === ADMIN_PASSWORD) role = "admin";
-      else if(input) role = "member";
-      else role = "guest";
-      localStorage.setItem("userRole", role);
-    }
-
-    const streamSection = document.getElementById("streamSection");
-    const startStreamBtn = document.getElementById("startStreamBtn");
-    const stopStreamBtn = document.getElementById("stopStreamBtn");
-    const liveStream = document.getElementById("liveStream");
-    const streamListEl = document.getElementById("streamList");
-
-    let localStream = null;
-    let mediaRecorder = null;
-    let recordedChunks = [];
-    let streams = JSON.parse(localStorage.getItem("streams") || "[]");
-
-    if(role === "admin") {
-      streamSection.style.display = "block";
-      renderStreamList();
-    }
-
-    async function startStream() {
-      try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
-        liveStream.srcObject = localStream;
-
-        mediaRecorder = new MediaRecorder(localStream);
-        recordedChunks = [];
-
-        mediaRecorder.ondataavailable = event => {
-          if(event.data.size > 0) recordedChunks.push(event.data);
-        };
-
-        mediaRecorder.onstop = () => {
-          const blob = new Blob(recordedChunks, { type: "video/webm" });
-          const url = URL.createObjectURL(blob);
-
-          const name = prompt("Enter a name for this stream:", "New Stream") || "New Stream";
-          const timestamp = new Date().toLocaleString();
-          const streamEntry = { id: Date.now(), name, timestamp, url };
-
-          streams.unshift(streamEntry);
-          localStorage.setItem("streams", JSON.stringify(streams));
-          renderStreamList();
-        };
-
-        mediaRecorder.start();
-
-        startStreamBtn.style.display = "none";
-        stopStreamBtn.style.display = "inline-block";
-      } catch(err) {
-        alert("Cannot access camera/microphone: " + err);
-      }
-    }
-
-    function stopStream() {
-      if(mediaRecorder && mediaRecorder.state !== "inactive") {
-        mediaRecorder.stop();
-      }
-      if(localStream) {
-        localStream.getTracks().forEach(track => track.stop());
-      }
-      startStreamBtn.style.display = "inline-block";
-      stopStreamBtn.style.display = "none";
-    }
-
-    startStreamBtn.addEventListener("click", startStream);
-    stopStreamBtn.addEventListener("click", stopStream);
-
-    function renderStreamList() {
-      streamListEl.innerHTML = "";
-      streams.forEach(stream => {
-        const li = document.createElement("li");
-        li.style.marginBottom = "10px";
-        li.innerHTML = `
-          <strong>Name:</strong> <span class="streamName">${stream.name}</span> 
-          | <strong>Time:</strong> ${stream.timestamp} 
-          <a href="${stream.url}" download="${stream.name}.webm">Download</a>
-          <button class="editBtn" style="margin-left:10px;">Edit</button>
-          <button class="deleteBtn" style="margin-left:5px;">Delete</button>
-        `;
-
-        li.querySelector(".editBtn").addEventListener("click", () => {
-          const newName = prompt("Edit stream name:", stream.name);
-          if(newName) {
-            stream.name = newName;
-            localStorage.setItem("streams", JSON.stringify(streams));
-            renderStreamList();
-          }
-        });
-
-        li.querySelector(".deleteBtn").addEventListener("click", () => {
-          if(confirm("Delete this stream?")) {
-            streams = streams.filter(s => s.id !== stream.id);
-            localStorage.setItem("streams", JSON.stringify(streams));
-            renderStreamList();
-          }
-        });
-
-        streamListEl.appendChild(li);
-      });
-    }
-  </script>
+  <script src="main.js"></script>
 </body>
 </html>
