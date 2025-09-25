@@ -1,68 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Her Space</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>MySite</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-
-    <!-- LOGIN -->
-    <div class="login-container">
-      <h1>Welcome</h1>
-      <input type="text" placeholder="Username" id="username">
-      <input type="password" placeholder="Password" id="password">
-      <span class="password-label">Temporary password here</span>
-      <button onclick="login()">Login</button>
-    </div>
-
-    <!-- PROFILE -->
-    <div class="profile-container" id="profile-section" style="display:none;">
-      <h2>Your Profile</h2>
-      <input type="text" placeholder="Profile Name" id="profile-name">
-      <input type="text" placeholder="Bio" id="profile-bio">
-      <button onclick="saveProfile()">Save Profile</button>
-    </div>
-
-    <!-- POSTS -->
-    <div class="posts-container" id="posts-section" style="display:none;">
-      <h2>Your Posts</h2>
-      <textarea id="post-content" placeholder="Write something..."></textarea>
-      <button onclick="addPost()">Add Post</button>
-      <div id="posts-list"></div>
-    </div>
-
-    <!-- MUSIC PLAYER -->
-    <div class="music-player" id="music-section" style="display:none;">
-      <h2>Music Player</h2>
-      <input type="file" id="music-file" accept="audio/*">
-      <button onclick="addMusic()">Add Music</button>
-      <audio id="audio-player" controls></audio>
-      <div id="music-list"></div>
-    </div>
-
-    <!-- FILE UPLOADER -->
-    <div class="file-uploader" id="files-section" style="display:none;">
-      <h2>Upload Files</h2>
-      <input type="file" id="file-input">
-      <div id="uploaded-files"></div>
-    </div>
-
-    <!-- STREAM POP-UP (optional) -->
-    <button id="stream-btn" style="display:none;" onclick="openStream()">Open Stream</button>
-    <div id="stream-container" style="display:none;">
-      <video id="stream-video" autoplay playsinline></video>
-      <button onclick="closeStream()">Close Stream</button>
-    </div>
-
-    <!-- VISUALIZER -->
-    <div class="visualizer" id="visualizer-section" style="display:none;">
-      <!-- Bars will be dynamically added by JS -->
-    </div>
-
+<div class="container">
+  <div id="login-container">
+    <h2>Login</h2>
+    <input type="text" id="login-username" placeholder="Username">
+    <input type="password" id="login-password" placeholder="Password">
+    <button id="login-btn">Login</button>
+    <p>or <button id="create-account-btn">Create Account</button></p>
   </div>
 
-  <script src="main.js"></script>
+  <div id="newsfeed-container" class="hidden">
+    <h2>News Feed</h2>
+    <div id="newsfeed"></div>
+    <button id="logout-btn">Logout</button>
+  </div>
+</div>
+
+<script src="main.js"></script>
 </body>
 </html>
