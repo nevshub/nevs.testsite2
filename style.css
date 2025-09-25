@@ -2,175 +2,151 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #111;
+  background-color: #1b1b2f; /* dark, soft purple/blue */
   color: #fff;
-  font-family: Arial, sans-serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  flex-direction: column;
 }
 
-h1, h2, h3, p {
-  margin: 10px 0;
-  text-align: center;
-}
-
-/* ==================== LINKS & BUTTONS ==================== */
-a, button {
-  color: #ff6600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
+h1, h2 {
+  color: #ff99cc;
+  margin-bottom: 20px;
 }
 
 button {
-  background-color: #222;
-  border: 2px solid #ff6600;
+  background-color: #662244;
+  color: #fff;
+  border: none;
   padding: 10px 20px;
-  margin: 10px;
+  margin: 5px;
   border-radius: 8px;
-  font-size: 16px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
 }
 
 button:hover {
-  background-color: #333;
-  border-color: #ff8800;
+  background-color: #884466;
 }
 
-/* ==================== LOGIN FORM ==================== */
+input, textarea {
+  padding: 8px;
+  margin: 5px 0;
+  border-radius: 6px;
+  border: 1px solid #884466;
+  width: 200px;
+  background-color: #2a1a3d;
+  color: #fff;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #ff99cc;
+}
+
+.container {
+  width: 90%;
+  max-width: 600px;
+  margin-top: 30px;
+}
+
+/* ==================== LOGIN ==================== */
 .login-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #1a1a1a;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 0 20px #000;
+  justify-content: center;
+  margin-top: 100px;
 }
 
-.login-container input {
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 5px;
-  border: 1px solid #444;
-  background-color: #222;
-  color: #fff;
-}
-
-.login-container .password-label {
+/* Temporary password note */
+#temp-password-note {
+  font-size: 0.9rem;
+  color: #ff99cc;
   margin-top: 5px;
-  font-size: 12px;
-  color: #ccc;
 }
 
-/* ==================== PROFILE & POSTS ==================== */
-.profile-container, .posts-container {
-  width: 90%;
-  max-width: 600px;
-  margin: 20px auto;
-  background-color: #1c1c1c;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 0 15px #000;
+/* ==================== PROFILE ==================== */
+#profile-section {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
 }
 
-.profile-container input, .posts-container textarea {
+#profile-section input, #profile-section textarea {
+  width: 80%;
+  max-width: 400px;
+}
+
+/* ==================== POSTS ==================== */
+#posts-section {
+  display: none;
+  margin-top: 20px;
   width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 5px;
-  border: 1px solid #444;
-  background-color: #222;
-  color: #fff;
 }
 
-.posts-container .post {
-  background-color: #222;
+.post {
+  background-color: #2a1a3d;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+/* ==================== MUSIC ==================== */
+#music-section {
+  display: none;
+  margin-top: 20px;
+  text-align: center;
+}
+
+#music-list button {
+  width: 100%;
+  max-width: 300px;
+}
+
+/* ==================== FILES ==================== */
+#files-section {
+  display: none;
+  margin-top: 20px;
+  text-align: center;
+}
+
+#uploaded-files div {
+  background-color: #2a1a3d;
+  margin: 5px 0;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+/* ==================== STREAM ==================== */
+#stream-container {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #111;
   padding: 15px;
-  margin: 10px 0;
   border-radius: 10px;
+  z-index: 1000;
+  box-shadow: 0 0 15px #ff99cc;
 }
 
-/* ==================== MUSIC PLAYER ==================== */
-.music-player {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: #1a1a1a;
-  padding: 20px;
-  border-radius: 15px;
-  margin: 20px 0;
-  width: 90%;
-  max-width: 500px;
-}
-
-.music-player audio {
-  width: 100%;
-  margin-top: 10px;
-}
-
-.music-player input[type="file"] {
-  margin-top: 10px;
-}
-
-/* ==================== FILE UPLOADER ==================== */
-.file-uploader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 20px 0;
-}
-
-.file-uploader input[type="file"] {
-  padding: 10px;
-  border-radius: 5px;
-  background-color: #222;
-  border: 1px solid #444;
-  color: #fff;
-}
-
-/* ==================== IMAGE UPLOAD PREVIEW ==================== */
-.uploaded-image {
-  margin: 10px 0;
-  max-width: 100%;
+#stream-video {
+  width: 400px;
+  height: 300px;
   border-radius: 10px;
-  box-shadow: 0 0 10px #000;
+  background-color: #000;
 }
 
 /* ==================== VISUALIZER ==================== */
-.visualizer {
-  display: flex;
+#visualizer-section {
+  display: none;
+  margin-top: 20px;
   justify-content: center;
-  align-items: flex-end;
-  width: 100%;
-  max-width: 600px;
-  height: 200px;
-  margin: 20px 0;
-  background-color: #111;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 0 20px #000;
-}
-
-.bar {
-  width: 5px;
-  margin: 0 2px;
-  background: linear-gradient(180deg, #ff6600, #ff0000);
-  animation: pulse 0.3s ease-in-out infinite alternate;
-  border-radius: 2px;
-}
-
-@keyframes pulse {
-  0% { transform: scaleY(0.2); }
-  100% { transform: scaleY(1); }
-}
-
-/* ==================== CENTER EVERYTHING ==================== */
-.container {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
 }
