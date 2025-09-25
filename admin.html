@@ -2,169 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Stream & Music Panel</title>
+  <title>Admin Page</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    #player { margin: 20px 0; }
-    #playlist { margin-top: 10px; }
-    canvas { display: block; margin: 0 auto; background-color: #111; border-radius: 8px; width: 100%; max-width: 700px; height: 200px; }
-  </style>
 </head>
 <body>
-  <h1>Admin Main Page</h1>
-
-  <!-- Streaming Section -->
-  <div id="streamSection" style="margin-top:30px; display:none;">
-    <h2>Admin Streaming</h2>
-    <button id="startStreamBtn" class="button">Start Stream</button>
-    <video id="liveStream" autoplay playsinline style="width:100%; max-width:700px; margin-top:20px; border-radius:8px;"></video>
-
-    <h3>Stream History</h3>
-    <ul id="streamList" style="list-style:none; padding:0;"></ul>
-  </div>
-
-  <!-- Music Player -->
-  <div id="player" style="display:none;">
-    <h2>Music Player</h2>
-    <audio id="audio" controls></audio>
-    <input type="file" id="fileInput" accept="audio/*" multiple>
-    <div id="playlist"></div>
-    <canvas id="visualizer"></canvas>
-  </div>
+  <h1>Admin Panel</h1>
+  <a href="index.html" class="button">Back to Home</a>
 
   <script>
-    const ADMIN_PASSWORD = "GroveFire"; // Sacred password
+    const ADMIN_PASSWORD = "Nev123";
     let role = localStorage.getItem("userRole") || "guest";
 
     if(role !== "admin") {
-      const input = prompt("Enter Admin password (leave empty if guest):");
-      if(input === ADMIN_PASSWORD) role = "admin";
-      else role = "guest";
-      localStorage.setItem("userRole", role);
-    }
-
-    const streamSection = document.getElementById("streamSection");
-    const playerSection = document.getElementById("player");
-
-    if(role === "admin") {
-      streamSection.style.display = "block";
-      playerSection.style.display = "block";
-    }
-
-    /* ================= STREAM CODE ================= */
-    const startStreamBtn = document.getElementById("startStreamBtn");
-    const liveStream = document.getElementById("liveStream");
-    const streamListEl = document.getElementById("streamList");
-    let localStream = null;
-    let peers = {};
-    let streams = JSON.parse(localStorage.getItem("streams") || "[]");
-
-    const socket = new WebSocket("ws://localhost:3000");
-    socket.onmessage = async (event) => {
-      const data = JSON.parse(event.data);
-      if(data.type === "answer" && role === "admin") {
-        const pc = peers[data.id];
-        if(pc) await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-      }
-      if(data.type === "candidate" && role === "admin") {
-        const pc = peers[data.id];
-        if(pc) pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-      }
-    };
-
-    startStreamBtn.addEventListener("click", async () => {
-      localStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
-      liveStream.srcObject = localStream;
-
-      const name = prompt("Enter a name for this stream:", "New Stream") || "New Stream";
-      const timestamp = new Date().toLocaleString();
-      const streamEntry = { id: Date.now(), name, timestamp };
-      streams.unshift(streamEntry);
-      localStorage.setItem("streams", JSON.stringify(streams));
-      renderStreamList();
-      broadcastToViewers();
-    });
-
-    async function broadcastToViewers() {
-      const viewerId = Date.now();
-      peers[viewerId] = new RTCPeerConnection();
-      localStream.getTracks().forEach(track => peers[viewerId].addTrack(track, localStream));
-      peers[viewerId].onicecandidate = event => {
-        if(event.candidate) socket.send(JSON.stringify({ type: "candidate", candidate: event.candidate, id: viewerId }));
-      };
-      const offer = await peers[viewerId].createOffer();
-      await peers[viewerId].setLocalDescription(offer);
-      socket.send(JSON.stringify({ type: "offer", offer, id: viewerId }));
-    }
-
-    function renderStreamList() {
-      streamListEl.innerHTML = "";
-      streams.forEach(stream => {
-        const li = document.createElement("li");
-        li.style.marginBottom = "10px";
-        li.innerHTML = `
-          <strong>Name:</strong> ${stream.name} 
-          | <strong>Time:</strong> ${stream.timestamp}
-        `;
-        streamListEl.appendChild(li);
-      });
-    }
-    renderStreamList();
-
-    /* ================= MUSIC PLAYER CODE ================= */
-    const audio = document.getElementById("audio");
-    const fileInput = document.getElementById("fileInput");
-    const playlist = document.getElementById("playlist");
-    const canvas = document.getElementById("visualizer");
-    const ctx = canvas.getContext("2d");
-
-    let audioCtx, analyser, source, dataArray;
-
-    fileInput.addEventListener("change", () => {
-      playlist.innerHTML = "";
-      Array.from(fileInput.files).forEach((file, index) => {
-        const item = document.createElement("div");
-        item.textContent = file.name;
-        item.onclick = () => loadTrack(file);
-        playlist.appendChild(item);
-        if (index === 0) loadTrack(file);
-      });
-    });
-
-    function loadTrack(file) {
-      const url = URL.createObjectURL(file);
-      audio.src = url;
-      audio.play();
-
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioCtx.createAnalyser();
-        source = audioCtx.createMediaElementSource(audio);
-        source.connect(analyser);
-        analyser.connect(audioCtx.destination);
-        analyser.fftSize = 256;
-        dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const input = prompt("Enter Admin password:");
+      if(input === ADMIN_PASSWORD) {
+        role = "admin";
+        localStorage.setItem("userRole", "admin");
+        alert("Welcome Admin!");
+      } else {
+        alert("Access denied. Returning to Home.");
+        window.location.href = "index.html";
       }
     }
-
-    function draw() {
-      requestAnimationFrame(draw);
-      if (!analyser) return;
-      analyser.getByteFrequencyData(dataArray);
-
-      ctx.fillStyle = "#111";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const barWidth = (canvas.width / dataArray.length) * 2.5;
-      let x = 0;
-      for (let i = 0; i < dataArray.length; i++) {
-        const barHeight = dataArray[i];
-        ctx.fillStyle = "rgb(" + (barHeight+100) + ",50,150)";
-        ctx.fillRect(x, canvas.height-barHeight/2, barWidth, barHeight/2);
-        x += barWidth + 1;
-      }
-    }
-    draw();
   </script>
+
+  <h2>Admin's Main Page in Progress</h2>
 </body>
 </html>
