@@ -1,52 +1,24 @@
-// ---------------------- Admin Login ----------------------
-const loginBtn = document.getElementById("loginBtn");
-const adminPassword = document.getElementById("adminPassword");
-if(loginBtn){
-  loginBtn.addEventListener("click", () => {
-    if(adminPassword.value === "Temp1234"){
-      document.getElementById("login-section").style.display = "none";
-      document.getElementById("stream-control").style.display = "block";
-      document.getElementById("recordings").style.display = "block";
-      document.getElementById("admin-news").style.display = "block";
-      alert("Admin access granted");
-    } else {
-      alert("Wrong password");
-    }
+// ---------------------- Stream Popup ----------------------
+const joinBtn = document.getElementById("joinStream");
+const modal = document.getElementById("streamModal");
+const closeModal = document.getElementById("closeModal");
+
+if(joinBtn){
+  joinBtn.addEventListener("click", async () => {
+    modal.style.display = "block";
+    const video = document.getElementById("streamVideo");
+    const localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    video.srcObject = localStream;
+  });
+}
+if(closeModal){
+  closeModal.addEventListener("click", () => {
+    modal.style.display = "none";
+    document.getElementById("streamVideo").srcObject = null;
   });
 }
 
-// ---------------------- News Feed ----------------------
-const feed = document.getElementById("feed");
-const postBtn = document.getElementById("postBtn");
-const newPost = document.getElementById("newPost");
-if(postBtn){
-  postBtn.addEventListener("click", () => {
-    if(newPost.value){
-      const post = document.createElement("div");
-      post.textContent = newPost.value;
-      feed.prepend(post);
-      newPost.value = "";
-    }
-  });
-}
-
-// ---------------------- Live Stream ----------------------
-let localStream;
-async function startStream(videoId){
-  const video = document.getElementById(videoId);
-  localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-  video.srcObject = localStream;
-}
-
-// Admin stream controls
-document.getElementById("startStream")?.addEventListener("click", ()=>startStream("adminStream"));
-document.getElementById("joinStream")?.addEventListener("click", ()=>startStream("streamVideo"));
-
-// ---------------------- Music Player ----------------------
-const audioInput = document.getElementById("musicFile");
-const audioPlayer = document.getElementById("musicPlayer");
-const canvas = document.getElementById("visualizer");
-
+// ---------------------- Music Visualizer ----------------------
 function setupVisualizer() {
   if(!audioPlayer || !canvas) return;
   const ctx = canvas.getContext("2d");
@@ -55,7 +27,7 @@ function setupVisualizer() {
   const analyser = audioCtx.createAnalyser();
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
-  analyser.fftSize = 256;
+  analyser.fftSize = 512;
   const bufferLength = analyser.frequencyBinCount;
   const dataArray = new Uint8Array(bufferLength);
 
@@ -63,25 +35,29 @@ function setupVisualizer() {
     requestAnimationFrame(draw);
     analyser.getByteFrequencyData(dataArray);
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle = '#ff6600';
-    const barWidth = (canvas.width / bufferLength);
+
+    // Gradient for Nev’s vibe
+    const gradient = ctx.createLinearGradient(0,0,canvas.width,0);
+    gradient.addColorStop(0,"#ff66cc");
+    gradient.addColorStop(0.5,"#ff6600");
+    gradient.addColorStop(1,"#66ccff");
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+    const sliceWidth = canvas.width / bufferLength;
     let x = 0;
-    dataArray.forEach(v=>{
-      const h = v;
-      ctx.fillRect(x,canvas.height-h,barWidth,h);
-      x += barWidth + 1;
-    });
+    for(let i=0;i<bufferLength;i++){
+      let v = dataArray[i]/255;
+      let y = v * canvas.height/2 + canvas.height/4;
+      if(i===0){
+        ctx.moveTo(x,y);
+      } else {
+        ctx.lineTo(x,y);
+      }
+      x += sliceWidth;
+    }
+    ctx.stroke();
   }
   draw();
-}
-
-// File opener
-function loadAudioFile(event){
-  const file = event.target.files[0];
-  if(file){
-    const url = URL.createObjectURL(file);
-    audioPlayer.src = url;
-    audioPlayer.play();
-    setupVisualizer();
-  }
 }
