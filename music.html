@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Grove Music</title>
+<title>Music Player</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>Grove Music</h1>
+    <h1>Music Player</h1>
     <nav>
       <a href="index.html">Home</a>
       <a href="news.html">News</a>
@@ -17,12 +17,14 @@
   </header>
 
   <main>
-    <audio id="musicPlayer" controls>
-      <source src="music.mp3" type="audio/mp3">
-    </audio>
-    <canvas id="visualizer"></canvas>
-  </main>
+    <input type="file" id="musicFile" accept="audio/*">
+    <audio id="musicPlayer" controls></audio>
+    <canvas id="visualizer" width="600" height="200"></canvas>
 
-  <script src="main.js"></script>
+    <script src="main.js"></script>
+    <script>
+      document.getElementById('musicFile').addEventListener('change', loadAudioFile);
+    </script>
+  </main>
 </body>
 </html>
