@@ -2,16 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Nev's Website</title>
+  <title>Home</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h1>Welcome to Nev's Website</h1>
 
-  <button id="adminBtn" class="button">Admin</button>
-  <button id="guestBtn" class="button">Guest</button>
-  <a href="https://your-grove-link.com" class="button" target="_blank">Visit Grove</a>
+  <!-- Navigation -->
+  <a href="about.html" class="button">About</a>
+  <a href="music.html" class="button">Music</a>
+  <a href="updates.html" class="button">News & Updates</a>
+  <a href="admin.html" class="button">Admin</a>
 
-  <script src="main.js"></script>
+  <!-- Guest/Admin indicator -->
+  <script>
+    const role = localStorage.getItem("userRole") || "guest";
+    document.write(`<p>Logged in as: <strong>${role}</strong></p>`);
+  </script>
 </body>
 </html>
