@@ -1,37 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>MySite</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Purple Hub</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="container">
-  <div id="login-container">
-    <h2>Login</h2>
-    <input type="text" id="login-username" placeholder="Username">
-    <input type="password" id="login-password" placeholder="Password">
-    <button id="login-btn">Login</button>
-    <p>or <button id="create-account-btn">Create Account</button></p>
+  <div class="container">
+
+    <!-- Login / Create Account -->
+    <div id="auth-section">
+      <h1>Welcome</h1>
+      <input type="text" id="username" placeholder="Username">
+      <input type="password" id="password" placeholder="Temporary password here">
+      <button id="login-btn">Login</button>
+      <button id="create-btn">Create Account</button>
+      <p id="auth-msg"></p>
+    </div>
+
+    <!-- Profile Section -->
+    <div id="profile-section" class="hidden">
+      <h2 id="profile-username"></h2>
+      <input type="file" id="profile-photo-input" accept="image/*">
+      <button id="upload-photo-btn">Upload Photo</button>
+      <div id="profile-photo-preview"></div>
+      <textarea id="profile-bio" placeholder="Write your bio here..."></textarea>
+      <button id="save-profile-btn">Save Profile</button>
+    </div>
+
+    <!-- News Feed -->
+    <div id="news-feed-section" class="hidden">
+      <h2>News Feed</h2>
+      <div id="news-feed"></div>
+    </div>
+
+    <!-- Music Player -->
+    <div id="music-section" class="hidden">
+      <h2>Music Player</h2>
+      <input type="file" id="music-input" accept="audio/*">
+      <button id="add-music-btn">Add Music</button>
+      <div id="music-list"></div>
+      <audio id="audio-player" controls></audio>
+      <canvas id="music-visualizer" width="600" height="100"></canvas>
+    </div>
+
   </div>
 
-  <div id="profile-container" class="hidden">
-    <h2 id="profile-name"></h2>
-    <input type="text" id="post-text" placeholder="Write something...">
-    <button id="add-post-btn">Post</button>
-
-    <h3>Your Music</h3>
-    <input type="file" id="music-file">
-    <button id="add-music-btn">Add Music</button>
-    <div id="music-list"></div>
-
-    <h3>News Feed</h3>
-    <div id="newsfeed"></div>
-
-    <button id="logout-btn">Logout</button>
-  </div>
-</div>
-
-<script src="main.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
