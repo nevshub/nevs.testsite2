@@ -1,52 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Purple Hub</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>My Purple Site</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
+    <section id="login-section">
+        <h1>Login</h1>
+        <input type="text" id="login-username" placeholder="Username">
+        <input type="password" id="login-password" placeholder="Temporary password here">
+        <button id="login-btn">Login</button>
+        <button id="create-account-btn">Create Account</button>
+        <p id="auth-msg"></p>
+    </section>
 
-    <!-- Login / Create Account -->
-    <div id="auth-section">
-      <h1>Welcome</h1>
-      <input type="text" id="username" placeholder="Username">
-      <input type="password" id="password" placeholder="Temporary password here">
-      <button id="login-btn">Login</button>
-      <button id="create-btn">Create Account</button>
-      <p id="auth-msg"></p>
-    </div>
+    <section id="profile-section" class="hidden">
+        <h2>Your Profile</h2>
+        <div id="profile-photo-preview"></div>
+        <input type="file" id="profile-photo">
+        <textarea id="profile-bio" rows="4" placeholder="Write something about yourself..."></textarea>
+        <button id="save-profile-btn">Save Profile</button>
+    </section>
 
-    <!-- Profile Section -->
-    <div id="profile-section" class="hidden">
-      <h2 id="profile-username"></h2>
-      <input type="file" id="profile-photo-input" accept="image/*">
-      <button id="upload-photo-btn">Upload Photo</button>
-      <div id="profile-photo-preview"></div>
-      <textarea id="profile-bio" placeholder="Write your bio here..."></textarea>
-      <button id="save-profile-btn">Save Profile</button>
-    </div>
+    <section id="news-section" class="hidden">
+        <h2>News Feed</h2>
+        <div id="news-feed"></div>
+        <textarea id="new-post" rows="2" placeholder="Write a new post..."></textarea>
+        <button id="post-btn">Post</button>
+    </section>
 
-    <!-- News Feed -->
-    <div id="news-feed-section" class="hidden">
-      <h2>News Feed</h2>
-      <div id="news-feed"></div>
-    </div>
+    <section id="music-section" class="hidden">
+        <h2>Music Player</h2>
+        <input type="file" id="music-upload" multiple>
+        <div id="music-list"></div>
+        <audio id="audio-player" controls></audio>
+        <canvas id="music-visualizer"></canvas>
+    </section>
 
-    <!-- Music Player -->
-    <div id="music-section" class="hidden">
-      <h2>Music Player</h2>
-      <input type="file" id="music-input" accept="audio/*">
-      <button id="add-music-btn">Add Music</button>
-      <div id="music-list"></div>
-      <audio id="audio-player" controls></audio>
-      <canvas id="music-visualizer" width="600" height="100"></canvas>
-    </div>
-
-  </div>
-
-  <script src="main.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
