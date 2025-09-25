@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Music Player</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Music</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
@@ -11,20 +11,24 @@
     <nav>
       <a href="index.html">Home</a>
       <a href="news.html">News</a>
+      <a href="music.html">Music</a>
       <a href="profile.html">Profile</a>
-      <a href="admin.html">Admin</a>
     </nav>
   </header>
 
   <main>
-    <input type="file" id="musicFile" accept="audio/*">
-    <audio id="musicPlayer" controls></audio>
-    <canvas id="visualizer" width="600" height="200"></canvas>
+    <section>
+      <h2>My Music Library</h2>
+      <input type="file" id="musicInput" accept="audio/*" multiple>
+      <ul id="musicList" style="list-style:none; padding:0;"></ul>
+    </section>
 
-    <script src="main.js"></script>
-    <script>
-      document.getElementById('musicFile').addEventListener('change', loadAudioFile);
-    </script>
+    <section style="margin-top:30px;">
+      <audio id="audioPlayer" controls></audio>
+      <canvas id="visualizer"></canvas>
+    </section>
   </main>
+
+  <script src="music.js"></script>
 </body>
 </html>
