@@ -2,19 +2,55 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Home</title>
+  <title>Her Space</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Welcome to Nev's Site</h1>
+  <div class="container">
 
-  <nav>
-    <a href="home.html">Home</a> |
-    <a href="updates.html">Updates</a> |
-    <a href="music.html">Music</a> |
-    <a href="profile.html">Profile</a>
-  </nav>
+    <h1>Welcome, Queen</h1>
 
-  <p>This is the landing page. Use the nav links above to explore.</p>
+    <!-- Login -->
+    <div class="login-section">
+      <input type="text" id="username" placeholder="Your name">
+      <input type="password" id="password" placeholder="Temporary password here">
+      <button onclick="login()">Login</button>
+    </div>
+
+    <!-- Profile -->
+    <div class="profile-section" id="profile-section">
+      <h2>Your Profile</h2>
+      <p id="profile-name">No profile set</p>
+      <button onclick="setProfile()">Set Name</button>
+    </div>
+
+    <!-- Posts -->
+    <div class="posts-section" id="posts-section">
+      <h2>Posts</h2>
+      <textarea id="new-post" placeholder="Write something..."></textarea>
+      <button onclick="addPost()">Add Post</button>
+      <div id="posts-container"></div>
+    </div>
+
+    <!-- Music Player -->
+    <div class="audio-player">
+      <h2>Music Player</h2>
+      <input type="file" id="music-file" accept="audio/*">
+      <button onclick="addMusic()">Add Music</button>
+      <div id="music-list"></div>
+      <audio id="audio" controls></audio>
+    </div>
+
+    <!-- Upload Images -->
+    <div class="upload-section">
+      <h2>Upload Images</h2>
+      <input type="file" id="image-file" accept="image/*">
+      <button onclick="uploadImage()">Upload</button>
+      <div id="images-container"></div>
+    </div>
+
+  </div>
+
+  <script src="main.js"></script>
 </body>
 </html>
