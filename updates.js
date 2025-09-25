@@ -1,7 +1,7 @@
 const ADMIN_PASSWORD = "Nev123"; 
 let role = localStorage.getItem("userRole") || "guest";
 
-// Prompt for role if not already set
+// Prompt if no role set
 if(!localStorage.getItem("userRole")) {
   const input = prompt("Enter Admin password (leave empty if guest):");
   if(input === ADMIN_PASSWORD) role = "admin";
@@ -16,10 +16,10 @@ const updateText = document.getElementById("updateText");
 const postUpdateBtn = document.getElementById("postUpdateBtn");
 const updatesFeed = document.getElementById("updatesFeed");
 
-// Load updates from storage
+// Load updates
 let updates = JSON.parse(localStorage.getItem("updates") || "[]");
 
-// Show post form if admin
+// Show form for Admin
 if(role === "admin") {
   postForm.style.display = "block";
 }
@@ -82,7 +82,7 @@ postUpdateBtn?.addEventListener("click", () => {
     text,
     timestamp: new Date().toLocaleString()
   };
-  updates.unshift(newUpdate); // newest first
+  updates.unshift(newUpdate);
   localStorage.setItem("updates", JSON.stringify(updates));
   updateText.value = "";
   renderUpdates();
