@@ -1,35 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Grove Profile</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Profile</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>Your Profile</h1>
+    <h1>My Profile</h1>
     <nav>
       <a href="index.html">Home</a>
       <a href="news.html">News</a>
       <a href="music.html">Music</a>
-      <a href="admin.html">Admin</a>
+      <a href="profile.html">Profile</a>
     </nav>
   </header>
 
   <main>
-    <section id="profile-stream">
-      <h2>Join Live Stream</h2>
-      <video id="memberStream" autoplay playsinline></video>
-      <button id="joinStream">Join Stream</button>
+    <section id="profile-settings">
+      <h2>Edit Profile</h2>
+      <input type="text" id="displayName" placeholder="Your Name">
+      <input type="file" id="profilePicInput" accept="image/*">
+      <input type="file" id="coverPicInput" accept="image/*">
+      <button id="saveProfile">Save Profile</button>
     </section>
-    <section id="profile-posts">
-      <h2>Your Posts</h2>
-      <div id="feed"></div>
+
+    <section id="profile-view" style="margin-top:20px;">
+      <img id="coverPic" style="width:100%; max-height:200px; object-fit:cover; border-radius:12px;">
+      <img id="profilePic" style="width:120px; height:120px; border-radius:50%; margin-top:-60px; border:4px solid #111;">
+      <h2 id="profileName"></h2>
+    </section>
+
+    <section id="myPosts" style="margin-top:30px;">
+      <h2>My Posts</h2>
       <input type="text" id="newPost" placeholder="Write a post...">
       <button id="postBtn">Post</button>
+      <ul id="postList" style="list-style:none; padding:0;"></ul>
     </section>
   </main>
 
-  <script src="main.js"></script>
+  <script src="profile.js"></script>
 </body>
 </html>
