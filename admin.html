@@ -1,31 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Page</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Grove Admin</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Admin Panel</h1>
-  <a href="index.html" class="button">Back to Home</a>
+  <header>
+    <h1>Grove Admin Panel</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="news.html">News</a>
+      <a href="music.html">Music</a>
+      <a href="profile.html">Profile</a>
+    </nav>
+  </header>
 
-  <script>
-    const ADMIN_PASSWORD = "Nev123";
-    let role = localStorage.getItem("userRole") || "guest";
+  <main>
+    <section id="stream-control">
+      <h2>Live Stream Control</h2>
+      <video id="adminStream" autoplay muted></video>
+      <button id="startStream">Start Stream</button>
+      <button id="stopStream">Stop Stream</button>
+    </section>
 
-    if(role !== "admin") {
-      const input = prompt("Enter Admin password:");
-      if(input === ADMIN_PASSWORD) {
-        role = "admin";
-        localStorage.setItem("userRole", "admin");
-        alert("Welcome Admin!");
-      } else {
-        alert("Access denied. Returning to Home.");
-        window.location.href = "index.html";
-      }
-    }
-  </script>
+    <section id="recordings">
+      <h2>Recorded Sessions</h2>
+      <ul id="recordedList"></ul>
+    </section>
 
-  <h2>Admin's Main Page in Progress</h2>
+    <section id="admin-news">
+      <h2>Post News</h2>
+      <input type="text" id="adminPost" placeholder="Write a news post...">
+      <button id="adminPostBtn">Post</button>
+    </section>
+  </main>
+
+  <script src="main.js"></script>
 </body>
 </html>
