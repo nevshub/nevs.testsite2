@@ -1,78 +1,46 @@
-let musicLibrary = JSON.parse(localStorage.getItem("musicLibrary") || "[]");
-const musicInput = document.getElementById("musicInput");
-const musicList = document.getElementById("musicList");
-const audioPlayer = document.getElementById("audioPlayer");
-const canvas = document.getElementById("visualizer");
+// ---------------- VISUALIZER ----------------
+const canvas = document.getElementById('visualizer');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth * 0.8;
+canvas.height = 150;
 
-function renderMusic() {
-  musicList.innerHTML = "";
-  musicLibrary.forEach((song, i) => {
-    const li = document.createElement("li");
-    li.style.marginBottom = "8px";
-    li.innerHTML = `
-      ${song.name}
-      <button onclick="playSong(${i})">Play</button>
-      <button onclick="deleteSong(${i})">Delete</button>
-    `;
-    musicList.appendChild(li);
-  });
-}
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const analyser = audioCtx.createAnalyser();
+analyser.fftSize = 256; // finer frequency detail
+let source;
 
-function playSong(index) {
-  audioPlayer.src = musicLibrary[index].url;
-  audioPlayer.play();
-  setupVisualizer();
-}
-
-function deleteSong(index) {
-  musicLibrary.splice(index, 1);
-  localStorage.setItem("musicLibrary", JSON.stringify(musicLibrary));
-  renderMusic();
-}
-
-musicInput.addEventListener("change", () => {
-  Array.from(musicInput.files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      musicLibrary.push({ name: file.name, url: e.target.result });
-      localStorage.setItem("musicLibrary", JSON.stringify(musicLibrary));
-      renderMusic();
-    };
-    reader.readAsDataURL(file);
-  });
+audioPlayer.addEventListener('play', () => {
+  if(!source){
+    source = audioCtx.createMediaElementSource(audioPlayer);
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    drawVisualizer();
+  }
 });
 
-function setupVisualizer() {
-  const ctx = canvas.getContext("2d");
-  const audioCtx = new AudioContext();
-  const source = audioCtx.createMediaElementSource(audioPlayer);
-  const analyser = audioCtx.createAnalyser();
-  source.connect(analyser);
-  analyser.connect(audioCtx.destination);
-  analyser.fftSize = 256;
+function drawVisualizer(){
+  requestAnimationFrame(drawVisualizer);
   const bufferLength = analyser.frequencyBinCount;
   const dataArray = new Uint8Array(bufferLength);
+  analyser.getByteFrequencyData(dataArray);
 
-  function draw() {
-    requestAnimationFrame(draw);
-    analyser.getByteFrequencyData(dataArray);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#111";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.beginPath();
-    ctx.strokeStyle = "#ff66cc";
-    ctx.lineWidth = 2;
-    let sliceWidth = canvas.width / bufferLength;
-    let x = 0;
-    for (let i = 0; i < bufferLength; i++) {
-      let v = dataArray[i] / 255;
-      let y = v * canvas.height;
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-      x += sliceWidth;
-    }
-    ctx.stroke();
-  }
-  draw();
+  const barWidth = (canvas.width / bufferLength) * 2.5;
+  let x = 0;
+  dataArray.forEach((value, i) => {
+    const bassBoost = i < 10 ? value * 1.5 : value; // bass stronger
+    const hiHatBoost = i > bufferLength - 10 ? value * 1.2 : bassBoost; // hi-hat accent
+    const barHeight = hiHatBoost;
+
+    // playful gradient colors
+    const r = 255 - barHeight;
+    const g = Math.min(barHeight + 50, 255);
+    const b = 200 + (barHeight / 2);
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+
+    ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+    x += barWidth + 1;
+  });
 }
-
-renderMusic();
