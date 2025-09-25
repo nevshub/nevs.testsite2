@@ -4,108 +4,136 @@
   <meta charset="UTF-8">
   <title>Updates</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .updates-container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #1c1c1c;
+      border-radius: 12px;
+    }
+    .updates-container input,
+    .updates-container textarea {
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #2a2a2a;
+      color: #fff;
+    }
+    .updates-container button {
+      background: #444;
+      color: #fff;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .updates-container button:hover {
+      background: #666;
+    }
+    .post {
+      margin-top: 20px;
+      padding: 15px;
+      background: #2a2a2a;
+      border-radius: 8px;
+    }
+    .post-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .post-header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    .like-btn {
+      background: none;
+      border: none;
+      color: #ff6600;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .like-btn.liked {
+      color: #ff3333;
+    }
+  </style>
 </head>
 <body>
-  <h1>Grove Updates</h1>
+  <div class="updates-container">
+    <h2>Post an Update</h2>
+    <textarea id="updateInput" placeholder="Write something..."></textarea>
+    <button onclick="postUpdate()">Post</button>
 
-  <!-- Post Form -->
-  <div id="postForm" style="display:none;">
-    <h2>New Update</h2>
-    <input type="text" id="updateTitle" placeholder="Title" required><br><br>
-    <textarea id="updateContent" placeholder="Your update..." required></textarea><br><br>
-    <button id="postUpdate">Post</button>
+    <h3>Recent Updates</h3>
+    <div id="updatesList"></div>
   </div>
 
-  <!-- Updates Feed -->
-  <div id="updatesFeed"></div>
-
   <script>
-    const role = localStorage.getItem("userRole"); // "admin" or "member"
-    const loggedInUser = localStorage.getItem("loggedInUser") || "Guest";
+    function postUpdate() {
+      const text = document.getElementById('updateInput').value;
+      if (!text) return;
 
-    const postForm = document.getElementById("postForm");
-    const updatesFeed = document.getElementById("updatesFeed");
+      const profile = JSON.parse(localStorage.getItem('profile')) || { username: "Guest", avatarUrl: "" };
+      const newPost = { text, profile, likes: 0, timestamp: Date.now() };
 
-    // Show post form for members and admin
-    if(role === "admin" || role === "member") postForm.style.display = "block";
+      let posts = JSON.parse(localStorage.getItem('updates')) || [];
+      posts.unshift(newPost);
+      localStorage.setItem('updates', JSON.stringify(posts));
 
-    // Load updates
-    let updates = JSON.parse(localStorage.getItem("updates") || "[]");
+      document.getElementById('updateInput').value = "";
+      loadUpdates();
+    }
 
-    function renderUpdates() {
-      updatesFeed.innerHTML = "";
-      // Sort pinned first
-      const sorted = updates.sort((a,b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
-      sorted.forEach(update => {
-        const div = document.createElement("div");
-        div.className = "update";
-        div.innerHTML = `
-          <h3>${update.title}</h3>
-          <p>${update.content}</p>
-          <small>By: ${update.author} | ${update.timestamp}</small><br>
-          Likes: <span>${update.likes}</span>
-          <button class="likeBtn" data-id="${update.id}">Like</button>
-          <button class="commentBtn" data-id="${update.id}">Comment</button>
-          ${role === "admin" ? `<button class="deleteBtn" data-id="${update.id}">Delete</button>
-          <button class="pinBtn" data-id="${update.id}">${update.pinned ? "Unpin" : "Pin"}</button>` : ""}
-          <div class="comments" id="comments-${update.id}"></div>
-          <hr>
-        `;
-        updatesFeed.appendChild(div);
+    function toggleLike(index) {
+      let posts = JSON.parse(localStorage.getItem('updates')) || [];
+      const post = posts[index];
+      post.liked = !post.liked;
+      post.likes = post.liked ? post.likes + 1 : post.likes - 1;
+      localStorage.setItem('updates', JSON.stringify(posts));
+      loadUpdates();
+    }
 
-        // Render comments
-        const commentsDiv = document.getElementById(`comments-${update.id}`);
-        update.comments.forEach(c => {
-          const cDiv = document.createElement("div");
-          cDiv.innerText = `${c.author}: ${c.text}`;
-          commentsDiv.appendChild(cDiv);
-        });
+    function loadUpdates() {
+      const updatesList = document.getElementById('updatesList');
+      updatesList.innerHTML = "";
+
+      const posts = JSON.parse(localStorage.getItem('updates')) || [];
+      posts.forEach((post, i) => {
+        const postDiv = document.createElement("div");
+        postDiv.className = "post";
+
+        const header = document.createElement("div");
+        header.className = "post-header";
+        if (post.profile.avatarUrl) {
+          const img = document.createElement("img");
+          img.src = post.profile.avatarUrl;
+          header.appendChild(img);
+        }
+        const name = document.createElement("strong");
+        name.textContent = post.profile.username;
+        header.appendChild(name);
+
+        const content = document.createElement("p");
+        content.textContent = post.text;
+
+        const likeBtn = document.createElement("button");
+        likeBtn.className = "like-btn" + (post.liked ? " liked" : "");
+        likeBtn.textContent = `❤ ${post.likes}`;
+        likeBtn.onclick = () => toggleLike(i);
+
+        postDiv.appendChild(header);
+        postDiv.appendChild(content);
+        postDiv.appendChild(likeBtn);
+
+        updatesList.appendChild(postDiv);
       });
     }
 
-    renderUpdates();
-
-    // Posting new update
-    document.getElementById("postUpdate").addEventListener("click", () => {
-      const title = document.getElementById("updateTitle").value.trim();
-      const content = document.getElementById("updateContent").value.trim();
-      if(!title || !content) return alert("Title and content required");
-
-      const newUpdate = {
-        id: Date.now(),
-        title,
-        content,
-        author: role === "admin" ? "Admin" : loggedInUser,
-        timestamp: new Date().toLocaleString(),
-        likes: 0,
-        comments: [],
-        pinned: false
-      };
-      updates.unshift(newUpdate);
-      localStorage.setItem("updates", JSON.stringify(updates));
-      renderUpdates();
-    });
-
-    // Like, comment, delete, pin
-    updatesFeed.addEventListener("click", e => {
-      const id = e.target.dataset.id;
-      if(!id) return;
-      const update = updates.find(u => u.id == id);
-
-      if(e.target.classList.contains("likeBtn")) {
-        update.likes++;
-      } else if(e.target.classList.contains("commentBtn")) {
-        const text = prompt("Comment:");
-        if(text) update.comments.push({author: loggedInUser, text});
-      } else if(e.target.classList.contains("deleteBtn") && role === "admin") {
-        updates = updates.filter(u => u.id != id);
-      } else if(e.target.classList.contains("pinBtn") && role === "admin") {
-        update.pinned = !update.pinned;
-      }
-
-      localStorage.setItem("updates", JSON.stringify(updates));
-      renderUpdates();
-    });
+    window.onload = loadUpdates;
   </script>
 </body>
 </html>
