@@ -1,93 +1,176 @@
+/* ==================== GLOBAL STYLES ==================== */
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Arial', sans-serif;
   background-color: #111;
   color: #fff;
-}
-
-.centered-container {
+  font-family: Arial, sans-serif;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: flex-start;
   min-height: 100vh;
-  padding: 20px;
-  gap: 20px;
+  flex-direction: column;
 }
 
-.hidden { display: none; }
+h1, h2, h3, p {
+  margin: 10px 0;
+  text-align: center;
+}
 
-input, textarea, button {
-  padding: 10px;
-  margin: 5px 0;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
+/* ==================== LINKS & BUTTONS ==================== */
+a, button {
+  color: #ff6600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 button {
-  cursor: pointer;
   background-color: #222;
-  color: #fff;
-  transition: 0.2s;
+  border: 2px solid #ff6600;
+  padding: 10px 20px;
+  margin: 10px;
+  border-radius: 8px;
+  font-size: 16px;
 }
 
 button:hover {
-  background-color: #444;
+  background-color: #333;
+  border-color: #ff8800;
 }
 
-.profile-section, .post-section, .music-section, .photo-section {
-  width: 80%;
-  max-width: 600px;
-  margin: 10px 0;
+/* ==================== LOGIN FORM ==================== */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #1a1a1a;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 20px #000;
 }
 
-#posts-container .post {
-  background-color: #222;
+.login-container input {
   padding: 10px;
-  margin: 5px 0;
-  border-radius: 8px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid #444;
+  background-color: #222;
+  color: #fff;
 }
 
-#music-list li {
-  list-style: none;
-  cursor: pointer;
-  margin: 5px 0;
-  color: #ff88ff;
+.login-container .password-label {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #ccc;
 }
 
-#music-list li:hover {
-  color: #ff00ff;
-}
-
-.photo-section img {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  margin: 5px;
-  border-radius: 10px;
-}
-
-#stream-popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #222;
+/* ==================== PROFILE & POSTS ==================== */
+.profile-container, .posts-container {
+  width: 90%;
+  max-width: 600px;
+  margin: 20px auto;
+  background-color: #1c1c1c;
   padding: 20px;
-  border-radius: 12px;
-  z-index: 1000;
+  border-radius: 15px;
+  box-shadow: 0 0 15px #000;
 }
 
-#stream-video {
-  width: 500px;
-  max-width: 90vw;
+.profile-container input, .posts-container textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid #444;
+  background-color: #222;
+  color: #fff;
+}
+
+.posts-container .post {
+  background-color: #222;
+  padding: 15px;
+  margin: 10px 0;
   border-radius: 10px;
 }
 
-canvas {
+/* ==================== MUSIC PLAYER ==================== */
+.music-player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #1a1a1a;
+  padding: 20px;
+  border-radius: 15px;
+  margin: 20px 0;
+  width: 90%;
+  max-width: 500px;
+}
+
+.music-player audio {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.music-player input[type="file"] {
+  margin-top: 10px;
+}
+
+/* ==================== FILE UPLOADER ==================== */
+.file-uploader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.file-uploader input[type="file"] {
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #222;
+  border: 1px solid #444;
+  color: #fff;
+}
+
+/* ==================== IMAGE UPLOAD PREVIEW ==================== */
+.uploaded-image {
+  margin: 10px 0;
+  max-width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #000;
+}
+
+/* ==================== VISUALIZER ==================== */
+.visualizer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
   width: 100%;
   max-width: 600px;
-  border-radius: 10px;
+  height: 200px;
+  margin: 20px 0;
+  background-color: #111;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 0 20px #000;
+}
+
+.bar {
+  width: 5px;
+  margin: 0 2px;
+  background: linear-gradient(180deg, #ff6600, #ff0000);
+  animation: pulse 0.3s ease-in-out infinite alternate;
+  border-radius: 2px;
+}
+
+@keyframes pulse {
+  0% { transform: scaleY(0.2); }
+  100% { transform: scaleY(1); }
+}
+
+/* ==================== CENTER EVERYTHING ==================== */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
