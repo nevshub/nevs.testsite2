@@ -6,23 +6,49 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Nev’s Music Player</h1>
+  <h1>Music Player</h1>
+  <a href="index.html" class="button">Back to Home</a>
 
-  <!-- Audio Player -->
-  <audio id="audioPlayer" controls></audio>
+  <audio id="musicPlayer" controls style="margin-top:20px; width:80%; max-width:600px;">
+    <source src="sample.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
 
-  <!-- Playlist -->
-  <ul id="playlist">
-    <li data-src="music/song1.mp3">Song 1</li>
-    <li data-src="music/song2.mp3">Song 2</li>
-    <li data-src="music/song3.mp3">Song 3</li>
-  </ul>
+  <canvas id="visualizer" width="800" height="200" style="margin-top:20px; width:90%; max-width:800px;"></canvas>
 
-  <!-- Electric Reactor Visualizer -->
-  <div id="visualizerContainer">
-    <canvas id="visualizer"></canvas>
-  </div>
+  <script>
+    const audio = document.getElementById("musicPlayer");
+    const canvas = document.getElementById("visualizer");
+    const ctx = canvas.getContext("2d");
 
-  <script src="main.js"></script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const source = audioCtx.createMediaElementSource(audio);
+    const analyser = audioCtx.createAnalyser();
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    analyser.fftSize = 256;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    function draw() {
+      requestAnimationFrame(draw);
+      analyser.getByteFrequencyData(dataArray);
+
+      ctx.fillStyle = "#111";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const barWidth = (canvas.width / bufferLength) * 2.5;
+      let x = 0;
+
+      for(let i = 0; i < bufferLength; i++) {
+        const barHeight = dataArray[i];
+        ctx.fillStyle = "#ff6600";
+        ctx.fillRect(x, canvas.height - barHeight/2, barWidth, barHeight/2);
+        x += barWidth + 1;
+      }
+    }
+    draw();
+  </script>
 </body>
 </html>
