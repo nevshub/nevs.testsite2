@@ -4,36 +4,10 @@
   <meta charset="UTF-8">
   <title>Updates</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* Updates Timeline Styles */
-    .updates-container {
-      max-width: 800px;
-      margin: 50px auto;
-      padding: 20px;
-      background: #111;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(255, 102, 0, 0.5);
-    }
-    .update {
-      border-left: 3px solid #ff6600;
-      margin: 20px 0;
-      padding-left: 15px;
-    }
-    .update h3 {
-      color: #ff6600;
-      margin: 0;
-    }
-    .update p {
-      margin: 5px 0;
-    }
-    .update small {
-      color: #aaa;
-    }
-  </style>
 </head>
 <body>
   <header>
-    <h1>Latest Updates</h1>
+    <h1>Site Updates</h1>
     <nav>
       <a href="index.html">Home</a>
       <a href="news.html">News</a>
@@ -46,25 +20,171 @@
   </header>
 
   <main>
-    <div class="updates-container">
-      <div class="update">
-        <h3>Streaming Feature Added</h3>
-        <small>Sept 24, 2025</small>
-        <p>Members and Admin can now start/stop streams, save recordings, and manage them directly in the news feed.</p>
-      </div>
-
-      <div class="update">
-        <h3>Music Visualizer Online</h3>
-        <small>Sept 22, 2025</small>
-        <p>Electric-style music player added to <a href="music.html">Music Page</a>. Supports uploads and live visualization.</p>
-      </div>
-
-      <div class="update">
-        <h3>Admin System Secured</h3>
-        <small>Sept 20, 2025</small>
-        <p>Admin panel now password protected. Nev123 is set as the temporary admin key.</p>
-      </div>
+    <!-- Admin Post Form -->
+    <div id="postForm" style="display:none; margin:20px 0;">
+      <h2>Create New Update</h2>
+      <input type="text" id="postTitle" placeholder="Title" style="width:100%; margin-bottom:10px;">
+      <textarea id="postContent" placeholder="Write your update..." style="width:100%; height:100px; margin-bottom:10px;"></textarea>
+      <button id="submitPost">Post Update</button>
     </div>
+
+    <!-- Updates Feed -->
+    <h2>Recent Updates</h2>
+    <div id="updatesFeed"></div>
   </main>
+
+  <script>
+    const ADMIN_PASSWORD = "Nev123";
+    let role = localStorage.getItem("userRole") || "guest";
+
+    if(role !== "member") {
+      const input = prompt("Enter Admin password (leave empty if guest):");
+      if(input === ADMIN_PASSWORD) role = "admin";
+      else if(input) role = "member";
+      else role = "guest";
+      localStorage.setItem("userRole", role);
+    }
+
+    const postForm = document.getElementById("postForm");
+    const postTitle = document.getElementById("postTitle");
+    const postContent = document.getElementById("postContent");
+    const submitPost = document.getElementById("submitPost");
+    const updatesFeed = document.getElementById("updatesFeed");
+
+    let updates = JSON.parse(localStorage.getItem("updates") || "[]");
+
+    if(role === "admin") {
+      postForm.style.display = "block";
+    }
+
+    function saveUpdates() {
+      localStorage.setItem("updates", JSON.stringify(updates));
+    }
+
+    function renderUpdates() {
+      updatesFeed.innerHTML = "";
+      updates.forEach(update => {
+        const postEl = document.createElement("div");
+        postEl.className = "updatePost";
+        postEl.style.border = "1px solid #555";
+        postEl.style.padding = "10px";
+        postEl.style.marginBottom = "15px";
+        postEl.style.borderRadius = "8px";
+
+        // Post header
+        postEl.innerHTML = `
+          <h3>${update.title}</h3>
+          <p>${update.content}</p>
+          <small>Posted: ${update.timestamp}</small><br>
+          <button class="likeBtn">❤️ ${update.likes || 0}</button>
+        `;
+
+        // Admin controls
+        if(role === "admin") {
+          const adminControls = document.createElement("div");
+          adminControls.innerHTML = `
+            <button class="deleteBtn">Delete</button>
+          `;
+          postEl.appendChild(adminControls);
+
+          adminControls.querySelector(".deleteBtn").addEventListener("click", () => {
+            if(confirm("Delete this post?")) {
+              updates = updates.filter(p => p.id !== update.id);
+              saveUpdates();
+              renderUpdates();
+            }
+          });
+        }
+
+        // Like button
+        postEl.querySelector(".likeBtn").addEventListener("click", () => {
+          update.likes = (update.likes || 0) + 1;
+          saveUpdates();
+          renderUpdates();
+        });
+
+        // Comments section
+        const commentsSection = document.createElement("div");
+        commentsSection.style.marginTop = "10px";
+        commentsSection.innerHTML = `
+          <h4>Comments</h4>
+          <ul class="commentsList" style="list-style:none; padding:0;"></ul>
+          <textarea class="commentInput" placeholder="Write a comment..." style="width:100%; height:50px; margin-top:5px;"></textarea>
+          <button class="commentBtn">Comment</button>
+        `;
+        postEl.appendChild(commentsSection);
+
+        const commentsList = commentsSection.querySelector(".commentsList");
+
+        // Render comments (pinned first)
+        const sortedComments = (update.comments || []).sort((a,b) => b.pinned - a.pinned);
+        sortedComments.forEach(comment => {
+          const li = document.createElement("li");
+          li.style.marginBottom = "5px";
+          li.innerHTML = `
+            ${comment.pinned ? "📌 " : ""}<strong>${comment.user}:</strong> ${comment.text}
+          `;
+
+          // Admin pin/unpin
+          if(role === "admin") {
+            const pinBtn = document.createElement("button");
+            pinBtn.textContent = comment.pinned ? "Unpin" : "Pin";
+            pinBtn.style.marginLeft = "10px";
+            pinBtn.addEventListener("click", () => {
+              comment.pinned = !comment.pinned;
+              saveUpdates();
+              renderUpdates();
+            });
+            li.appendChild(pinBtn);
+          }
+
+          commentsList.appendChild(li);
+        });
+
+        // Add comment
+        commentsSection.querySelector(".commentBtn").addEventListener("click", () => {
+          const input = commentsSection.querySelector(".commentInput");
+          const text = input.value.trim();
+          if(text) {
+            const newComment = {
+              id: Date.now(),
+              user: role === "admin" ? "Admin" : "Guest",
+              text,
+              pinned: false
+            };
+            update.comments = update.comments || [];
+            update.comments.push(newComment);
+            input.value = "";
+            saveUpdates();
+            renderUpdates();
+          }
+        });
+
+        updatesFeed.appendChild(postEl);
+      });
+    }
+
+    submitPost.addEventListener("click", () => {
+      const title = postTitle.value.trim();
+      const content = postContent.value.trim();
+      if(title && content) {
+        const newUpdate = {
+          id: Date.now(),
+          title,
+          content,
+          timestamp: new Date().toLocaleString(),
+          likes: 0,
+          comments: []
+        };
+        updates.unshift(newUpdate);
+        postTitle.value = "";
+        postContent.value = "";
+        saveUpdates();
+        renderUpdates();
+      }
+    });
+
+    renderUpdates();
+  </script>
 </body>
 </html>
