@@ -1,18 +1,24 @@
-// ---------------------- Auth & Role ----------------------
-const isAdmin = window.location.href.includes("admin.html");
-if (isAdmin) {
-  const password = prompt("Enter Admin Password:");
-  if (password !== "GroveFire") {
-    alert("Wrong password");
-    window.location.href = "index.html";
-  }
+// ---------------------- Admin Login ----------------------
+const loginBtn = document.getElementById("loginBtn");
+const adminPassword = document.getElementById("adminPassword");
+if(loginBtn){
+  loginBtn.addEventListener("click", () => {
+    if(adminPassword.value === "Temp1234"){
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("stream-control").style.display = "block";
+      document.getElementById("recordings").style.display = "block";
+      document.getElementById("admin-news").style.display = "block";
+      alert("Admin access granted");
+    } else {
+      alert("Wrong password");
+    }
+  });
 }
 
 // ---------------------- News Feed ----------------------
 const feed = document.getElementById("feed");
 const postBtn = document.getElementById("postBtn");
 const newPost = document.getElementById("newPost");
-
 if(postBtn){
   postBtn.addEventListener("click", () => {
     if(newPost.value){
@@ -26,46 +32,26 @@ if(postBtn){
 
 // ---------------------- Live Stream ----------------------
 let localStream;
-let peerConnections = {};
-const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-
-async function startStream(){
-  const video = document.getElementById(isAdmin ? "adminStream" : "streamVideo");
+async function startStream(videoId){
+  const video = document.getElementById(videoId);
   localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
   video.srcObject = localStream;
-
-  // For recording (admin)
-  if(isAdmin){
-    const mediaRecorder = new MediaRecorder(localStream);
-    let chunks = [];
-    mediaRecorder.ondataavailable = e => chunks.push(e.data);
-    mediaRecorder.onstop = e => {
-      const blob = new Blob(chunks, { type: "video/webm" });
-      const url = URL.createObjectURL(blob);
-      const li = document.createElement("li");
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "recordedStream.webm";
-      a.textContent = "Download Stream";
-      li.appendChild(a);
-      document.getElementById("recordedList").appendChild(li);
-      chunks = [];
-    };
-    mediaRecorder.start();
-    setTimeout(() => mediaRecorder.stop(), 1000*60*5); // Auto-stop 5 min
-  }
 }
 
-document.getElementById("startStream")?.addEventListener("click", startStream);
-document.getElementById("joinStream")?.addEventListener("click", startStream);
+// Admin stream controls
+document.getElementById("startStream")?.addEventListener("click", ()=>startStream("adminStream"));
+document.getElementById("joinStream")?.addEventListener("click", ()=>startStream("streamVideo"));
 
-// ---------------------- Music Visualizer ----------------------
-const audio = document.getElementById("musicPlayer");
+// ---------------------- Music Player ----------------------
+const audioInput = document.getElementById("musicFile");
+const audioPlayer = document.getElementById("musicPlayer");
 const canvas = document.getElementById("visualizer");
-if(audio && canvas){
+
+function setupVisualizer() {
+  if(!audioPlayer || !canvas) return;
   const ctx = canvas.getContext("2d");
   const audioCtx = new AudioContext();
-  const source = audioCtx.createMediaElementSource(audio);
+  const source = audioCtx.createMediaElementSource(audioPlayer);
   const analyser = audioCtx.createAnalyser();
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
@@ -87,4 +73,15 @@ if(audio && canvas){
     });
   }
   draw();
+}
+
+// File opener
+function loadAudioFile(event){
+  const file = event.target.files[0];
+  if(file){
+    const url = URL.createObjectURL(file);
+    audioPlayer.src = url;
+    audioPlayer.play();
+    setupVisualizer();
+  }
 }
