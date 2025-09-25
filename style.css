@@ -1,102 +1,114 @@
 /* ==================== Global Styles ==================== */
 body {
-  margin: 0;
-  font-family: 'Arial', sans-serif;
-  background: linear-gradient(135deg, #5b2c6f, #9b59b6);
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-color: #1e0a3c;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
 }
 
-/* ==================== Container ==================== */
-.container {
-  text-align: center;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 40px;
-  border-radius: 20px;
-  box-shadow: 0 0 30px #7f3fbf;
-  width: 450px;
+.hidden {
+    display: none;
+}
+
+/* ==================== Sections ==================== */
+section {
+    width: 90%;
+    max-width: 900px;
+    margin-top: 40px;
+    background-color: #2a0f55;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 
 /* ==================== Headings ==================== */
-h2, h3 {
-  margin-bottom: 15px;
+h1, h2, h3 {
+    color: #e0c7ff;
+    text-align: center;
 }
 
-/* ==================== Inputs & Buttons ==================== */
-input, button {
-  width: 80%;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
-}
-
-input {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-}
-
-input::placeholder {
-  color: #ddd;
+/* ==================== Login & Buttons ==================== */
+input[type="text"], input[type="password"], textarea {
+    width: 90%;
+    padding: 10px;
+    margin: 10px auto;
+    display: block;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background-color: #3c1f70;
+    color: #fff;
 }
 
 button {
-  background-color: #7f3fbf;
-  color: #fff;
-  cursor: pointer;
-  transition: 0.3s;
+    padding: 10px 20px;
+    margin: 10px 5px;
+    border: none;
+    border-radius: 8px;
+    background-color: #5a2db3;
+    color: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
 }
 
 button:hover {
-  background-color: #9b59b6;
+    background-color: #7b4ee0;
 }
 
-/* ==================== Hidden Elements ==================== */
-.hidden {
-  display: none;
+/* ==================== Profile ==================== */
+#profile-photo-preview img {
+    display: block;
+    margin: 10px auto;
+    border-radius: 50%;
+    border: 2px solid #e0c7ff;
 }
 
-/* ==================== News Feed & Music List ==================== */
-#newsfeed, #music-list {
-  max-height: 200px;
-  overflow-y: auto;
-  text-align: left;
-  margin-top: 10px;
-  border-top: 1px solid rgba(255,255,255,0.2);
-  padding-top: 10px;
+textarea {
+    resize: none;
 }
 
-#newsfeed div, #music-list audio {
-  margin: 5px 0;
+/* ==================== News Feed ==================== */
+.post {
+    background-color: #3c1f70;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 10px;
 }
 
-/* ==================== Profile Picture ==================== */
-#profile-picture {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  object-fit: cover;
-  margin-bottom: 15px;
+/* ==================== Music ==================== */
+#music-list button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background-color: #4b1e90;
 }
 
-/* ==================== Music Player ==================== */
-audio {
-  width: 100%;
-  margin-top: 10px;
-  outline: none;
+#music-list button:hover {
+    background-color: #6233b8;
 }
 
-/* ==================== Visualizer ==================== */
-#visualizer {
-  width: 100%;
-  height: 100px;
-  margin-top: 20px;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.2);
-  box-shadow: 0 0 20px #7f3fbf;
+#audio-player {
+    width: 100%;
+    margin-top: 10px;
+}
+
+#music-visualizer {
+    width: 100%;
+    height: 100px;
+    margin-top: 10px;
+    border-radius: 10px;
+    background-color: #220033;
+}
+
+/* ==================== Messages ==================== */
+#auth-msg {
+    color: #ff99ff;
+    text-align: center;
+    font-weight: bold;
 }
