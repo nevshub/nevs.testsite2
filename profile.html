@@ -2,19 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Your Profile</title>
+  <title>Updates</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .profile-container {
-      max-width: 400px;
+    .updates-container {
+      max-width: 600px;
       margin: 40px auto;
       padding: 20px;
       background: #1c1c1c;
       border-radius: 12px;
-      text-align: center;
     }
-    .profile-container input,
-    .profile-container textarea {
+    .updates-container input,
+    .updates-container textarea {
       width: 100%;
       margin: 8px 0;
       padding: 10px;
@@ -23,7 +22,7 @@
       background: #2a2a2a;
       color: #fff;
     }
-    .profile-container button {
+    .updates-container button {
       background: #444;
       color: #fff;
       padding: 10px 16px;
@@ -31,74 +30,110 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    .profile-container button:hover {
+    .updates-container button:hover {
       background: #666;
     }
-    .profile-display {
+    .post {
       margin-top: 20px;
       padding: 15px;
       background: #2a2a2a;
       border-radius: 8px;
     }
-    .profile-display img {
-      max-width: 100px;
-      border-radius: 50%;
+    .post-header {
+      display: flex;
+      align-items: center;
       margin-bottom: 10px;
+    }
+    .post-header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    .like-btn {
+      background: none;
+      border: none;
+      color: #ff6600;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .like-btn.liked {
+      color: #ff3333;
     }
   </style>
 </head>
 <body>
-  <div class="profile-container">
-    <h2>Create / Edit Profile</h2>
-    <input type="text" id="username" placeholder="Enter your name">
-    <textarea id="bio" placeholder="Enter a short bio"></textarea>
-    <input type="file" id="avatar" accept="image/*">
-    <button onclick="saveProfile()">Save Profile</button>
+  <div class="updates-container">
+    <h2>Post an Update</h2>
+    <textarea id="updateInput" placeholder="Write something..."></textarea>
+    <button onclick="postUpdate()">Post</button>
 
-    <div class="profile-display" id="profileDisplay" style="display:none;">
-      <h3 id="displayName"></h3>
-      <img id="displayAvatar" src="" alt="Profile Picture">
-      <p id="displayBio"></p>
-    </div>
+    <h3>Recent Updates</h3>
+    <div id="updatesList"></div>
   </div>
 
   <script>
-    function saveProfile() {
-      const username = document.getElementById('username').value;
-      const bio = document.getElementById('bio').value;
-      const avatarFile = document.getElementById('avatar').files[0];
+    function postUpdate() {
+      const text = document.getElementById('updateInput').value;
+      if (!text) return;
 
-      if (avatarFile) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const avatarUrl = e.target.result;
-          localStorage.setItem('profile', JSON.stringify({ username, bio, avatarUrl }));
-          loadProfile();
-        };
-        reader.readAsDataURL(avatarFile);
-      } else {
-        const saved = JSON.parse(localStorage.getItem('profile')) || {};
-        localStorage.setItem('profile', JSON.stringify({ username, bio, avatarUrl: saved.avatarUrl || "" }));
-        loadProfile();
-      }
+      const profile = JSON.parse(localStorage.getItem('profile')) || { username: "Guest", avatarUrl: "" };
+      const newPost = { text, profile, likes: 0, timestamp: Date.now() };
+
+      let posts = JSON.parse(localStorage.getItem('updates')) || [];
+      posts.unshift(newPost);
+      localStorage.setItem('updates', JSON.stringify(posts));
+
+      document.getElementById('updateInput').value = "";
+      loadUpdates();
     }
 
-    function loadProfile() {
-      const profile = JSON.parse(localStorage.getItem('profile'));
-      if (profile) {
-        document.getElementById('displayName').textContent = profile.username;
-        document.getElementById('displayBio').textContent = profile.bio;
-        if (profile.avatarUrl) {
-          document.getElementById('displayAvatar').src = profile.avatarUrl;
-          document.getElementById('displayAvatar').style.display = 'block';
-        } else {
-          document.getElementById('displayAvatar').style.display = 'none';
+    function toggleLike(index) {
+      let posts = JSON.parse(localStorage.getItem('updates')) || [];
+      const post = posts[index];
+      post.liked = !post.liked;
+      post.likes = post.liked ? post.likes + 1 : post.likes - 1;
+      localStorage.setItem('updates', JSON.stringify(posts));
+      loadUpdates();
+    }
+
+    function loadUpdates() {
+      const updatesList = document.getElementById('updatesList');
+      updatesList.innerHTML = "";
+
+      const posts = JSON.parse(localStorage.getItem('updates')) || [];
+      posts.forEach((post, i) => {
+        const postDiv = document.createElement("div");
+        postDiv.className = "post";
+
+        const header = document.createElement("div");
+        header.className = "post-header";
+        if (post.profile.avatarUrl) {
+          const img = document.createElement("img");
+          img.src = post.profile.avatarUrl;
+          header.appendChild(img);
         }
-        document.getElementById('profileDisplay').style.display = 'block';
-      }
+        const name = document.createElement("strong");
+        name.textContent = post.profile.username;
+        header.appendChild(name);
+
+        const content = document.createElement("p");
+        content.textContent = post.text;
+
+        const likeBtn = document.createElement("button");
+        likeBtn.className = "like-btn" + (post.liked ? " liked" : "");
+        likeBtn.textContent = `❤ ${post.likes}`;
+        likeBtn.onclick = () => toggleLike(i);
+
+        postDiv.appendChild(header);
+        postDiv.appendChild(content);
+        postDiv.appendChild(likeBtn);
+
+        updatesList.appendChild(postDiv);
+      });
     }
 
-    window.onload = loadProfile;
+    window.onload = loadUpdates;
   </script>
 </body>
 </html>
