@@ -1,54 +1,43 @@
-const express = require("express");
-const multer = require("multer");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const fs = require("fs");
+// POSTS
+app.post("/posts", (req, res) => {
+  const { username, text } = req.body;
+  if (!username || !text) return res.status(400).json({ success: false });
 
-const app = express();
-const PORT = 3000;
-
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static(__dirname)); // serve HTML, CSS, JS, uploads
-
-// Setup file storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) => {
-    const uniqueName = Date.now() + "-" + file.originalname;
-    cb(null, uniqueName);
-  },
-});
-const upload = multer({ storage });
-
-// Save profile
-app.post("/upload", upload.single("photo"), (req, res) => {
-  const { username, bio } = req.body;
-  const photoPath = req.file ? "/uploads/" + req.file.filename : null;
-
-  // Load existing profiles
-  let profiles = [];
-  if (fs.existsSync("profiles.json")) {
-    profiles = JSON.parse(fs.readFileSync("profiles.json"));
+  let posts = [];
+  if (fs.existsSync("posts.json")) {
+    posts = JSON.parse(fs.readFileSync("posts.json"));
   }
 
-  // Replace or add profile
-  const existingIndex = profiles.findIndex((p) => p.username === username);
-  if (existingIndex >= 0) {
-    profiles[existingIndex] = { username, bio, photo: photoPath };
-  } else {
-    profiles.push({ username, bio, photo: photoPath });
+  posts.push({ username, text, timestamp: Date.now() });
+  fs.writeFileSync("posts.json", JSON.stringify(posts, null, 2));
+
+  res.json({ success: true });
+});
+
+app.get("/posts", (req, res) => {
+  if (!fs.existsSync("posts.json")) return res.json([]);
+  res.json(JSON.parse(fs.readFileSync("posts.json")));
+});
+
+// SONGS
+const songUpload = multer({ storage });
+app.post("/songs", songUpload.single("song"), (req, res) => {
+  const { username, title } = req.body;
+  if (!req.file) return res.status(400).json({ success: false, msg: "No file" });
+
+  let songs = [];
+  if (fs.existsSync("songs.json")) {
+    songs = JSON.parse(fs.readFileSync("songs.json"));
   }
 
-  fs.writeFileSync("profiles.json", JSON.stringify(profiles, null, 2));
-  res.json({ success: true, username, bio, photo: photoPath });
+  const songPath = "/uploads/" + req.file.filename;
+  songs.push({ username, title, filePath: songPath });
+  fs.writeFileSync("songs.json", JSON.stringify(songs, null, 2));
+
+  res.json({ success: true, filePath: songPath });
 });
 
-// Fetch profiles
-app.get("/profiles", (req, res) => {
-  if (!fs.existsSync("profiles.json")) return res.json([]);
-  const profiles = JSON.parse(fs.readFileSync("profiles.json"));
-  res.json(profiles);
+app.get("/songs", (req, res) => {
+  if (!fs.existsSync("songs.json")) return res.json([]);
+  res.json(JSON.parse(fs.readFileSync("songs.json")));
 });
-
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
