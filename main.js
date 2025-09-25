@@ -1,187 +1,195 @@
-// ---------------- LOGIN ----------------
-const loginScreen = document.getElementById('login-screen');
-const homeScreen = document.getElementById('home-screen');
-const loginBtn = document.getElementById('login-btn');
-const tempPass = document.getElementById('temp-pass');
-
-loginBtn.addEventListener('click', () => {
+// ======= LOGIN =======
+function login() {
+  const username = document.getElementById('username').value;
   const password = document.getElementById('password').value;
-  if(password === tempPass.textContent){
-    loginScreen.classList.add('hidden');
-    homeScreen.classList.remove('hidden');
+
+  if (username && password) {
+    // Show all sections after login
+    document.getElementById('profile-section').style.display = 'block';
+    document.getElementById('posts-section').style.display = 'block';
+    document.getElementById('music-section').style.display = 'block';
+    document.getElementById('files-section').style.display = 'block';
+    document.getElementById('stream-btn').style.display = 'block';
+    document.querySelector('.login-container').style.display = 'none';
+
     loadProfile();
     loadPosts();
     loadMusic();
-    loadPhotos();
+    loadFiles();
   } else {
-    alert('Incorrect password');
+    alert('Enter username and password');
   }
-});
-
-// ---------------- PROFILE ----------------
-const profileInput = document.getElementById('profile-input');
-const profileName = document.getElementById('profile-name');
-const saveProfileBtn = document.getElementById('save-profile');
-
-saveProfileBtn.addEventListener('click', () => {
-  const name = profileInput.value.trim();
-  if(name){
-    localStorage.setItem('profileName', name);
-    profileName.textContent = name;
-    profileInput.value = '';
-  }
-});
-
-function loadProfile(){
-  const savedName = localStorage.getItem('profileName');
-  if(savedName) profileName.textContent = savedName;
 }
 
-// ---------------- POSTS ----------------
-const postInput = document.getElementById('post-input');
-const savePostBtn = document.getElementById('save-post');
-const postsContainer = document.getElementById('posts-container');
-
-savePostBtn.addEventListener('click', () => {
-  const content = postInput.value.trim();
-  if(content){
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.push(content);
-    localStorage.setItem('posts', JSON.stringify(posts));
-    displayPosts();
-    postInput.value = '';
-  }
-});
-
-function loadPosts(){
-  displayPosts();
+// ======= PROFILE =======
+function saveProfile() {
+  const name = document.getElementById('profile-name').value;
+  const bio = document.getElementById('profile-bio').value;
+  const profile = { name, bio };
+  localStorage.setItem('profile', JSON.stringify(profile));
+  alert('Profile saved');
 }
 
-function displayPosts(){
+function loadProfile() {
+  const profile = JSON.parse(localStorage.getItem('profile'));
+  if (profile) {
+    document.getElementById('profile-name').value = profile.name;
+    document.getElementById('profile-bio').value = profile.bio;
+  }
+}
+
+// ======= POSTS =======
+function addPost() {
+  const content = document.getElementById('post-content').value;
+  if (!content) return;
+
   const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-  postsContainer.innerHTML = '';
-  posts.forEach((p, i) => {
+  posts.push({ content, date: new Date().toLocaleString() });
+  localStorage.setItem('posts', JSON.stringify(posts));
+  document.getElementById('post-content').value = '';
+  loadPosts();
+}
+
+function loadPosts() {
+  const postsList = document.getElementById('posts-list');
+  postsList.innerHTML = '';
+  const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+  posts.forEach(post => {
     const div = document.createElement('div');
-    div.textContent = p;
     div.className = 'post';
-    postsContainer.appendChild(div);
+    div.innerHTML = `<strong>${post.date}</strong><p>${post.content}</p>`;
+    postsList.appendChild(div);
   });
 }
 
-// ---------------- MUSIC ----------------
-const musicFile = document.getElementById('music-file');
-const addMusicBtn = document.getElementById('add-music');
-const audioPlayer = document.getElementById('audio-player');
-const musicList = document.getElementById('music-list');
+// ======= MUSIC =======
+function addMusic() {
+  const fileInput = document.getElementById('music-file');
+  const file = fileInput.files[0];
+  if (!file) return;
 
-addMusicBtn.addEventListener('click', () => {
-  if(musicFile.files.length > 0){
-    const file = musicFile.files[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-      const musicTracks = JSON.parse(localStorage.getItem('musicTracks') || '[]');
-      musicTracks.push({name: file.name, data: reader.result});
-      localStorage.setItem('musicTracks', JSON.stringify(musicTracks));
-      loadMusic();
-    };
-    reader.readAsDataURL(file);
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const music = JSON.parse(localStorage.getItem('music') || '[]');
+    music.push({ name: file.name, data: e.target.result });
+    localStorage.setItem('music', JSON.stringify(music));
+    loadMusic();
   }
-});
+  reader.readAsDataURL(file);
+  fileInput.value = '';
+}
 
-function loadMusic(){
+function loadMusic() {
+  const musicList = document.getElementById('music-list');
+  const audioPlayer = document.getElementById('audio-player');
   musicList.innerHTML = '';
-  const musicTracks = JSON.parse(localStorage.getItem('musicTracks') || '[]');
-  musicTracks.forEach((track, idx) => {
-    const li = document.createElement('li');
-    li.textContent = track.name;
-    li.addEventListener('click', () => {
+
+  const music = JSON.parse(localStorage.getItem('music') || '[]');
+  music.forEach((track, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = track.name;
+    btn.onclick = () => {
       audioPlayer.src = track.data;
       audioPlayer.play();
-    });
-    musicList.appendChild(li);
+    }
+    musicList.appendChild(btn);
   });
 }
 
-// ---------------- VISUALIZER ----------------
-const canvas = document.getElementById('visualizer');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth * 0.8;
-canvas.height = 150;
+// ======= FILE UPLOADER =======
+function loadFiles() {
+  const filesDiv = document.getElementById('uploaded-files');
+  filesDiv.innerHTML = '';
 
+  const files = JSON.parse(localStorage.getItem('files') || '[]');
+  files.forEach(file => {
+    const div = document.createElement('div');
+    div.textContent = file.name;
+    filesDiv.appendChild(div);
+  });
+}
+
+document.getElementById('file-input').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const files = JSON.parse(localStorage.getItem('files') || '[]');
+    files.push({ name: file.name, data: e.target.result });
+    localStorage.setItem('files', JSON.stringify(files));
+    loadFiles();
+  }
+  reader.readAsDataURL(file);
+  this.value = '';
+});
+
+// ======= STREAM =======
+async function openStream() {
+  const streamContainer = document.getElementById('stream-container');
+  const video = document.getElementById('stream-video');
+  streamContainer.style.display = 'block';
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    video.srcObject = stream;
+  } catch (err) {
+    alert('Cannot access camera/mic');
+  }
+}
+
+function closeStream() {
+  const video = document.getElementById('stream-video');
+  const stream = video.srcObject;
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+  }
+  video.srcObject = null;
+  document.getElementById('stream-container').style.display = 'none';
+}
+
+// ======= VISUALIZER =======
+const visualizerSection = document.getElementById('visualizer-section');
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const analyser = audioCtx.createAnalyser();
 let source;
 
-audioPlayer.addEventListener('play', () => {
-  if(!source){
-    source = audioCtx.createMediaElementSource(audioPlayer);
+document.getElementById('audio-player').addEventListener('play', function() {
+  if (!source) {
+    source = audioCtx.createMediaElementSource(this);
     source.connect(analyser);
     analyser.connect(audioCtx.destination);
-    drawVisualizer();
   }
+  drawVisualizer();
 });
 
-function drawVisualizer(){
-  requestAnimationFrame(drawVisualizer);
+function drawVisualizer() {
+  visualizerSection.style.display = 'flex';
+  const canvas = document.createElement('canvas');
+  canvas.width = 300;
+  canvas.height = 100;
+  visualizerSection.innerHTML = '';
+  visualizerSection.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  analyser.fftSize = 64;
   const bufferLength = analyser.frequencyBinCount;
   const dataArray = new Uint8Array(bufferLength);
-  analyser.getByteFrequencyData(dataArray);
 
-  ctx.fillStyle = "#111";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  function renderFrame() {
+    requestAnimationFrame(renderFrame);
+    analyser.getByteFrequencyData(dataArray);
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  const barWidth = (canvas.width / bufferLength) * 2.5;
-  let x = 0;
-  dataArray.forEach(value => {
-    const barHeight = value;
-    ctx.fillStyle = `rgb(${barHeight+100},50,255)`;
-    ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
-    x += barWidth + 1;
-  });
-}
+    const barWidth = (canvas.width / bufferLength) * 2.5;
+    let x = 0;
 
-// ---------------- PHOTOS ----------------
-const photoUpload = document.getElementById('photo-upload');
-const photoContainer = document.getElementById('photo-container');
-
-photoUpload.addEventListener('change', () => {
-  const file = photoUpload.files[0];
-  const reader = new FileReader();
-  reader.onload = () => {
-    const photos = JSON.parse(localStorage.getItem('photos') || '[]');
-    photos.push(reader.result);
-    localStorage.setItem('photos', JSON.stringify(photos));
-    loadPhotos();
-  };
-  reader.readAsDataURL(file);
-});
-
-function loadPhotos(){
-  photoContainer.innerHTML = '';
-  const photos = JSON.parse(localStorage.getItem('photos') || '[]');
-  photos.forEach(src => {
-    const img = document.createElement('img');
-    img.src = src;
-    img.className = 'photo';
-    photoContainer.appendChild(img);
-  });
-}
-
-// ---------------- STREAM POPUP ----------------
-const openStreamBtn = document.getElementById('open-stream-btn');
-const closeStreamBtn = document.getElementById('close-stream-btn');
-const streamPopup = document.getElementById('stream-popup');
-const streamVideo = document.getElementById('stream-video');
-
-openStreamBtn.addEventListener('click', async () => {
-  streamPopup.classList.remove('hidden');
-  const stream = await navigator.mediaDevices.getUserMedia({video:true, audio:false});
-  streamVideo.srcObject = stream;
-});
-
-closeStreamBtn.addEventListener('click', () => {
-  streamPopup.classList.add('hidden');
-  if(streamVideo.srcObject){
-    streamVideo.srcObject.getTracks().forEach(track => track.stop());
+    for (let i = 0; i < bufferLength; i++) {
+      const barHeight = dataArray[i] / 2;
+      ctx.fillStyle = `rgb(${barHeight + 100},50,200)`;
+      ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+      x += barWidth + 1;
+    }
   }
-});
+  renderFrame();
+}
