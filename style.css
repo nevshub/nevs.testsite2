@@ -1,58 +1,40 @@
-body {
-  margin: 0;
-  padding: 0;
+/* Modal styling */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85);
+}
+
+.modal-content {
+  position: relative;
+  margin: 5% auto;
   background: #111;
-  color: #fff;
-  font-family: Arial, sans-serif;
-  text-align: center;
-  min-height: 100vh;
-}
-
-header {
-  background: #222;
-  padding: 10px;
-}
-
-nav a {
-  color: #ff6600;
-  margin: 0 10px;
-  text-decoration: none;
-}
-
-h1, h2 {
-  color: #ff9900;
-}
-
-button {
-  background: #444; /* darker */
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  margin: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: 0.2s;
-}
-
-button:hover {
-  background: #555;
-}
-
-input[type=text] {
-  padding: 5px;
-  margin: 5px;
-  width: 200px;
-}
-
-video {
+  padding: 20px;
   width: 80%;
-  max-width: 600px;
-  margin: 10px 0;
+  max-width: 800px;
+  border-radius: 12px;
   border: 2px solid #ff6600;
 }
 
-canvas {
+#closeModal {
+  position: absolute;
+  right: 20px;
+  top: 10px;
+  font-size: 28px;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Visualizer upgrade */
+#visualizer {
   display: block;
-  margin: 20px auto;
-  border: 2px solid #ff6600;
+  margin: 30px auto;
+  width: 80%;
+  height: 250px;
+  background: #111;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255,102,0,0.6);
 }
