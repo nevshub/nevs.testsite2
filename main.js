@@ -1,63 +1,109 @@
-// ---------------------- Stream Popup ----------------------
-const joinBtn = document.getElementById("joinStream");
-const modal = document.getElementById("streamModal");
-const closeModal = document.getElementById("closeModal");
-
-if(joinBtn){
-  joinBtn.addEventListener("click", async () => {
-    modal.style.display = "block";
-    const video = document.getElementById("streamVideo");
-    const localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    video.srcObject = localStream;
-  });
-}
-if(closeModal){
-  closeModal.addEventListener("click", () => {
-    modal.style.display = "none";
-    document.getElementById("streamVideo").srcObject = null;
-  });
-}
-
-// ---------------------- Music Visualizer ----------------------
-function setupVisualizer() {
-  if(!audioPlayer || !canvas) return;
-  const ctx = canvas.getContext("2d");
-  const audioCtx = new AudioContext();
-  const source = audioCtx.createMediaElementSource(audioPlayer);
-  const analyser = audioCtx.createAnalyser();
-  source.connect(analyser);
-  analyser.connect(audioCtx.destination);
-  analyser.fftSize = 512;
-  const bufferLength = analyser.frequencyBinCount;
-  const dataArray = new Uint8Array(bufferLength);
-
-  function draw(){
-    requestAnimationFrame(draw);
-    analyser.getByteFrequencyData(dataArray);
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    // Gradient for Nev’s vibe
-    const gradient = ctx.createLinearGradient(0,0,canvas.width,0);
-    gradient.addColorStop(0,"#ff66cc");
-    gradient.addColorStop(0.5,"#ff6600");
-    gradient.addColorStop(1,"#66ccff");
-    ctx.strokeStyle = gradient;
-    ctx.lineWidth = 2;
-
-    ctx.beginPath();
-    const sliceWidth = canvas.width / bufferLength;
-    let x = 0;
-    for(let i=0;i<bufferLength;i++){
-      let v = dataArray[i]/255;
-      let y = v * canvas.height/2 + canvas.height/4;
-      if(i===0){
-        ctx.moveTo(x,y);
-      } else {
-        ctx.lineTo(x,y);
-      }
-      x += sliceWidth;
-    }
-    ctx.stroke();
+// ==================== Profile ====================
+function setProfile() {
+  const name = document.getElementById('username').value;
+  if(name){
+    localStorage.setItem('profileName', name);
+    document.getElementById('profile-name').innerText = name;
   }
-  draw();
+}
+
+// Load profile on start
+window.onload = () => {
+  const storedName = localStorage.getItem('profileName');
+  if(storedName){
+    document.getElementById('profile-name').innerText = storedName;
+  }
+  loadPosts();
+  loadMusic();
+  loadImages();
+};
+
+// ==================== Posts ====================
+function addPost() {
+  const postText = document.getElementById('new-post').value;
+  if(!postText) return;
+  let posts = JSON.parse(localStorage.getItem('posts') || '[]');
+  posts.push(postText);
+  localStorage.setItem('posts', JSON.stringify(posts));
+  document.getElementById('new-post').value = '';
+  loadPosts();
+}
+
+function loadPosts() {
+  const postsContainer = document.getElementById('posts-container');
+  postsContainer.innerHTML = '';
+  let posts = JSON.parse(localStorage.getItem('posts') || '[]');
+  posts.forEach(post => {
+    const div = document.createElement('div');
+    div.className = 'post';
+    div.innerText = post;
+    postsContainer.appendChild(div);
+  });
+}
+
+// ==================== Music ====================
+function addMusic() {
+  const fileInput = document.getElementById('music-file');
+  if(fileInput.files.length === 0) return;
+  let musicList = JSON.parse(localStorage.getItem('musicList') || '[]');
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e){
+    musicList.push({name: file.name, data: e.target.result});
+    localStorage.setItem('musicList', JSON.stringify(musicList));
+    loadMusic();
+  }
+  reader.readAsDataURL(file);
+}
+
+function loadMusic() {
+  const musicContainer = document.getElementById('music-list');
+  const audioPlayer = document.getElementById('audio');
+  musicContainer.innerHTML = '';
+  let musicList = JSON.parse(localStorage.getItem('musicList') || '[]');
+  musicList.forEach((music, index) => {
+    const btn = document.createElement('button');
+    btn.innerText = music.name;
+    btn.onclick = () => {
+      audioPlayer.src = music.data;
+      audioPlayer.play();
+    };
+    musicContainer.appendChild(btn);
+  });
+}
+
+// ==================== Images ====================
+function uploadImage() {
+  const fileInput = document.getElementById('image-file');
+  if(fileInput.files.length === 0) return;
+  let images = JSON.parse(localStorage.getItem('images') || '[]');
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e){
+    images.push(e.target.result);
+    localStorage.setItem('images', JSON.stringify(images));
+    loadImages();
+  }
+  reader.readAsDataURL(file);
+}
+
+function loadImages() {
+  const container = document.getElementById('images-container');
+  container.innerHTML = '';
+  let images = JSON.parse(localStorage.getItem('images') || '[]');
+  images.forEach(imgSrc => {
+    const img = document.createElement('img');
+    img.src = imgSrc;
+    img.className = 'uploaded-image';
+    container.appendChild(img);
+  });
+}
+
+// ==================== Login ====================
+function login() {
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  alert(`Logged in as ${username} with temporary password: ${password}`);
 }
