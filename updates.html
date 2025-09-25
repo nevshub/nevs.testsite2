@@ -4,244 +4,54 @@
   <meta charset="UTF-8">
   <title>Updates</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    .updates-container {
-      max-width: 600px;
-      margin: 40px auto;
-      padding: 20px;
-      background: #1c1c1c;
-      border-radius: 12px;
-    }
-    .updates-container textarea {
-      width: 100%;
-      margin: 8px 0;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #2a2a2a;
-      color: #fff;
-    }
-    .updates-container button {
-      background: #444;
-      color: #fff;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .updates-container button:hover {
-      background: #666;
-    }
-    .post {
-      margin-top: 20px;
-      padding: 15px;
-      background: #2a2a2a;
-      border-radius: 8px;
-    }
-    .post-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .post-header img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      margin-right: 10px;
-    }
-    .like-btn {
-      background: none;
-      border: none;
-      color: #ff6600;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-    .like-btn.liked {
-      color: #ff3333;
-    }
-    .pin-btn {
-      background: none;
-      border: none;
-      color: #66ccff;
-      cursor: pointer;
-      margin-left: 8px;
-    }
-    .comments {
-      margin-top: 15px;
-      padding-left: 10px;
-      border-left: 2px solid #444;
-    }
-    .comment {
-      margin: 6px 0;
-      background: #1c1c1c;
-      padding: 6px 10px;
-      border-radius: 6px;
-    }
-    .comment strong {
-      color: #ff6600;
-    }
-    .comment-form {
-      display: flex;
-      margin-top: 10px;
-    }
-    .comment-form input {
-      flex: 1;
-      padding: 8px;
-      border-radius: 6px;
-      border: none;
-      background: #2a2a2a;
-      color: #fff;
-    }
-    .comment-form button {
-      margin-left: 8px;
-      padding: 8px 12px;
-      border-radius: 6px;
-    }
-    .pinned-label {
-      font-size: 12px;
-      color: #66ccff;
-      margin-left: 5px;
-    }
-  </style>
 </head>
 <body>
-  <div class="updates-container">
-    <h2>Post an Update</h2>
-    <textarea id="updateInput" placeholder="Write something..."></textarea>
-    <button onclick="postUpdate()">Post</button>
+  <h1>Community Updates</h1>
 
-    <h3>Recent Updates</h3>
-    <div id="updatesList"></div>
-  </div>
+  <form id="postForm">
+    <input type="text" name="username" placeholder="Your username" required><br>
+    <textarea name="text" placeholder="Write an update..." required></textarea><br>
+    <button type="submit">Post</button>
+  </form>
+
+  <h2>Posts</h2>
+  <div id="posts"></div>
 
   <script>
-    function postUpdate() {
-      const text = document.getElementById('updateInput').value;
-      if (!text) return;
-
-      const profile = JSON.parse(localStorage.getItem('profile')) || { username: "Guest", avatarUrl: "" };
-      const newPost = { text, profile, likes: 0, liked: false, comments: [], pinned: false, timestamp: Date.now() };
-
-      let posts = JSON.parse(localStorage.getItem('updates')) || [];
-      posts.unshift(newPost);
-      localStorage.setItem('updates', JSON.stringify(posts));
-
-      document.getElementById('updateInput').value = "";
-      loadUpdates();
-    }
-
-    function toggleLike(index) {
-      let posts = JSON.parse(localStorage.getItem('updates')) || [];
-      const post = posts[index];
-      post.liked = !post.liked;
-      post.likes = post.liked ? post.likes + 1 : post.likes - 1;
-      localStorage.setItem('updates', JSON.stringify(posts));
-      loadUpdates();
-    }
-
-    function togglePin(index) {
-      let posts = JSON.parse(localStorage.getItem('updates')) || [];
-      posts[index].pinned = !posts[index].pinned;
-      localStorage.setItem('updates', JSON.stringify(posts));
-      loadUpdates();
-    }
-
-    function addComment(index, inputId) {
-      const input = document.getElementById(inputId);
-      const text = input.value;
-      if (!text) return;
-
-      const profile = JSON.parse(localStorage.getItem('profile')) || { username: "Guest", avatarUrl: "" };
-      let posts = JSON.parse(localStorage.getItem('updates')) || [];
-      posts[index].comments.push({ text, profile });
-      localStorage.setItem('updates', JSON.stringify(posts));
-
-      input.value = "";
-      loadUpdates();
-    }
-
-    function loadUpdates() {
-      const updatesList = document.getElementById('updatesList');
-      updatesList.innerHTML = "";
-
-      let posts = JSON.parse(localStorage.getItem('updates')) || [];
-      // Pinned posts first
-      posts.sort((a, b) => (b.pinned - a.pinned) || (b.timestamp - a.timestamp));
-
-      posts.forEach((post, i) => {
-        const postDiv = document.createElement("div");
-        postDiv.className = "post";
-
-        const header = document.createElement("div");
-        header.className = "post-header";
-
-        const leftSide = document.createElement("div");
-        leftSide.style.display = "flex";
-        leftSide.style.alignItems = "center";
-
-        if (post.profile.avatarUrl) {
-          const img = document.createElement("img");
-          img.src = post.profile.avatarUrl;
-          leftSide.appendChild(img);
-        }
-        const name = document.createElement("strong");
-        name.textContent = post.profile.username;
-        leftSide.appendChild(name);
-
-        if (post.pinned) {
-          const pinLabel = document.createElement("span");
-          pinLabel.className = "pinned-label";
-          pinLabel.textContent = "📌 Pinned";
-          leftSide.appendChild(pinLabel);
-        }
-
-        const pinBtn = document.createElement("button");
-        pinBtn.className = "pin-btn";
-        pinBtn.textContent = post.pinned ? "Unpin" : "Pin";
-        pinBtn.onclick = () => togglePin(posts.indexOf(post));
-
-        header.appendChild(leftSide);
-        header.appendChild(pinBtn);
-
-        const content = document.createElement("p");
-        content.textContent = post.text;
-
-        const likeBtn = document.createElement("button");
-        likeBtn.className = "like-btn" + (post.liked ? " liked" : "");
-        likeBtn.textContent = `❤ ${post.likes}`;
-        likeBtn.onclick = () => toggleLike(posts.indexOf(post));
-
-        // Comments section
-        const commentsDiv = document.createElement("div");
-        commentsDiv.className = "comments";
-        post.comments.forEach(c => {
-          const cDiv = document.createElement("div");
-          cDiv.className = "comment";
-          cDiv.innerHTML = `<strong>${c.profile.username}:</strong> ${c.text}`;
-          commentsDiv.appendChild(cDiv);
-        });
-
-        // Comment form
-        const commentForm = document.createElement("div");
-        commentForm.className = "comment-form";
-        const inputId = "commentInput" + i;
-        commentForm.innerHTML = `
-          <input id="${inputId}" placeholder="Write a comment...">
-          <button onclick="addComment(${posts.indexOf(post)}, '${inputId}')">Post</button>
+    async function loadPosts() {
+      const res = await fetch("/posts");
+      const posts = await res.json();
+      const profiles = await (await fetch("/profiles")).json();
+      const container = document.getElementById("posts");
+      container.innerHTML = "";
+      posts.reverse().forEach(post => {
+        const user = profiles.find(p => p.username === post.username);
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <div style="border:1px solid #444; padding:10px; margin:10px 0;">
+            ${user && user.photo ? `<img src="${user.photo}" width="50">` : ""}
+            <strong>${post.username}</strong><br>
+            <small>${new Date(post.timestamp).toLocaleString()}</small>
+            <p>${post.text}</p>
+          </div>
         `;
-
-        postDiv.appendChild(header);
-        postDiv.appendChild(content);
-        postDiv.appendChild(likeBtn);
-        postDiv.appendChild(commentsDiv);
-        postDiv.appendChild(commentForm);
-
-        updatesList.appendChild(postDiv);
+        container.appendChild(div);
       });
     }
 
-    window.onload = loadUpdates;
+    document.getElementById("postForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.target));
+      await fetch("/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      e.target.reset();
+      loadPosts();
+    });
+
+    loadPosts();
   </script>
 </body>
 </html>
