@@ -1,54 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Music</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Grove Music</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Music Player</h1>
-  <a href="index.html" class="button">Back to Home</a>
+  <header>
+    <h1>Grove Music</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="news.html">News</a>
+      <a href="profile.html">Profile</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+  </header>
 
-  <audio id="musicPlayer" controls style="margin-top:20px; width:80%; max-width:600px;">
-    <source src="sample.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
+  <main>
+    <audio id="musicPlayer" controls>
+      <source src="music.mp3" type="audio/mp3">
+    </audio>
+    <canvas id="visualizer"></canvas>
+  </main>
 
-  <canvas id="visualizer" width="800" height="200" style="margin-top:20px; width:90%; max-width:800px;"></canvas>
-
-  <script>
-    const audio = document.getElementById("musicPlayer");
-    const canvas = document.getElementById("visualizer");
-    const ctx = canvas.getContext("2d");
-
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const source = audioCtx.createMediaElementSource(audio);
-    const analyser = audioCtx.createAnalyser();
-    source.connect(analyser);
-    analyser.connect(audioCtx.destination);
-
-    analyser.fftSize = 256;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-
-    function draw() {
-      requestAnimationFrame(draw);
-      analyser.getByteFrequencyData(dataArray);
-
-      ctx.fillStyle = "#111";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const barWidth = (canvas.width / bufferLength) * 2.5;
-      let x = 0;
-
-      for(let i = 0; i < bufferLength; i++) {
-        const barHeight = dataArray[i];
-        ctx.fillStyle = "#ff6600";
-        ctx.fillRect(x, canvas.height - barHeight/2, barWidth, barHeight/2);
-        x += barWidth + 1;
-      }
-    }
-    draw();
-  </script>
+  <script src="main.js"></script>
 </body>
 </html>
