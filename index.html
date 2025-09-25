@@ -15,9 +15,19 @@
     <p>or <button id="create-account-btn">Create Account</button></p>
   </div>
 
-  <div id="newsfeed-container" class="hidden">
-    <h2>News Feed</h2>
+  <div id="profile-container" class="hidden">
+    <h2 id="profile-name"></h2>
+    <input type="text" id="post-text" placeholder="Write something...">
+    <button id="add-post-btn">Post</button>
+
+    <h3>Your Music</h3>
+    <input type="file" id="music-file">
+    <button id="add-music-btn">Add Music</button>
+    <div id="music-list"></div>
+
+    <h3>News Feed</h3>
     <div id="newsfeed"></div>
+
     <button id="logout-btn">Logout</button>
   </div>
 </div>
