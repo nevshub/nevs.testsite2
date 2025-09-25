@@ -2,53 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Her Space</title>
+  <title>HerSpace</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
+  <div class="centered-container" id="login-screen">
+    <h1>Welcome</h1>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <p class="temp-password">Temporary password here: <span id="temp-pass">1234</span></p>
+    <button id="login-btn">Login</button>
+  </div>
 
-    <h1>Welcome, Queen</h1>
-
-    <!-- Login -->
-    <div class="login-section">
-      <input type="text" id="username" placeholder="Your name">
-      <input type="password" id="password" placeholder="Temporary password here">
-      <button onclick="login()">Login</button>
+  <div class="centered-container hidden" id="home-screen">
+    <div class="profile-section">
+      <h2 id="profile-name">Your Profile</h2>
+      <input type="text" id="profile-input" placeholder="Enter profile name">
+      <button id="save-profile">Save Profile</button>
     </div>
 
-    <!-- Profile -->
-    <div class="profile-section" id="profile-section">
-      <h2>Your Profile</h2>
-      <p id="profile-name">No profile set</p>
-      <button onclick="setProfile()">Set Name</button>
-    </div>
-
-    <!-- Posts -->
-    <div class="posts-section" id="posts-section">
-      <h2>Posts</h2>
-      <textarea id="new-post" placeholder="Write something..."></textarea>
-      <button onclick="addPost()">Add Post</button>
+    <div class="post-section">
+      <textarea id="post-input" placeholder="Write a post..."></textarea>
+      <button id="save-post">Save Post</button>
       <div id="posts-container"></div>
     </div>
 
-    <!-- Music Player -->
-    <div class="audio-player">
-      <h2>Music Player</h2>
+    <div class="music-section">
+      <h3>Music Player</h3>
       <input type="file" id="music-file" accept="audio/*">
-      <button onclick="addMusic()">Add Music</button>
-      <div id="music-list"></div>
-      <audio id="audio" controls></audio>
+      <button id="add-music">Add Track</button>
+      <audio id="audio-player" controls></audio>
+      <ul id="music-list"></ul>
+      <canvas id="visualizer"></canvas>
     </div>
 
-    <!-- Upload Images -->
-    <div class="upload-section">
-      <h2>Upload Images</h2>
-      <input type="file" id="image-file" accept="image/*">
-      <button onclick="uploadImage()">Upload</button>
-      <div id="images-container"></div>
+    <div class="photo-section">
+      <h3>Upload Photos</h3>
+      <input type="file" id="photo-upload" accept="image/*">
+      <div id="photo-container"></div>
     </div>
 
+    <button id="open-stream-btn">Open Stream</button>
+    <div id="stream-popup" class="hidden">
+      <video id="stream-video" autoplay muted></video>
+      <button id="close-stream-btn">Close Stream</button>
+    </div>
   </div>
 
   <script src="main.js"></script>
