@@ -2,33 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Music</title>
+  <title>Music Player</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Music Player</h1>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="news.html">News</a>
-      <a href="music.html">Music</a>
-      <a href="profile.html">Profile</a>
-    </nav>
-  </header>
+  <h1>Community Music</h1>
 
-  <main>
-    <section>
-      <h2>My Music Library</h2>
-      <input type="file" id="musicInput" accept="audio/*" multiple>
-      <ul id="musicList" style="list-style:none; padding:0;"></ul>
-    </section>
+  <form id="songForm" enctype="multipart/form-data">
+    <input type="text" name="username" placeholder="Your username" required><br>
+    <input type="text" name="title" placeholder="Song title" required><br>
+    <input type="file" name="song" accept="audio/*" required><br>
+    <button type="submit">Upload Song</button>
+  </form>
 
-    <section style="margin-top:30px;">
-      <audio id="audioPlayer" controls></audio>
-      <canvas id="visualizer"></canvas>
-    </section>
-  </main>
+  <h2>Songs</h2>
+  <div id="songs"></div>
 
-  <script src="music.js"></script>
+  <script>
+    async function loadSongs() {
+      const res = await fetch("/songs");
+      const songs = await res.json();
+      const profiles = await (await fetch("/profiles")).json();
+      const container = document.getElementById("songs");
+      container.innerHTML = "";
+      songs.forEach(s => {
+        const user = profiles.find(p => p.username === s.username);
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <div style="margin:10px 0; padding:10px; border:1px solid #444;">
+            ${user && user.photo ? `<img src="${user.photo}" width="50">` : ""}
+            <strong>${s.title}</strong> by ${s.username}<br>
+            <audio controls src="${s.filePath}"></audio>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    document.getElementById("songForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      await fetch("/songs", { method: "POST", body: formData });
+      e.target.reset();
+      loadSongs();
+    });
+
+    loadSongs();
+  </script>
 </body>
 </html>
