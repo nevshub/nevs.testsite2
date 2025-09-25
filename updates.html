@@ -41,6 +41,7 @@
     .post-header {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       margin-bottom: 10px;
     }
     .post-header img {
@@ -58,6 +59,13 @@
     }
     .like-btn.liked {
       color: #ff3333;
+    }
+    .pin-btn {
+      background: none;
+      border: none;
+      color: #66ccff;
+      cursor: pointer;
+      margin-left: 8px;
     }
     .comments {
       margin-top: 15px;
@@ -90,6 +98,11 @@
       padding: 8px 12px;
       border-radius: 6px;
     }
+    .pinned-label {
+      font-size: 12px;
+      color: #66ccff;
+      margin-left: 5px;
+    }
   </style>
 </head>
 <body>
@@ -108,7 +121,7 @@
       if (!text) return;
 
       const profile = JSON.parse(localStorage.getItem('profile')) || { username: "Guest", avatarUrl: "" };
-      const newPost = { text, profile, likes: 0, liked: false, comments: [], timestamp: Date.now() };
+      const newPost = { text, profile, likes: 0, liked: false, comments: [], pinned: false, timestamp: Date.now() };
 
       let posts = JSON.parse(localStorage.getItem('updates')) || [];
       posts.unshift(newPost);
@@ -123,6 +136,13 @@
       const post = posts[index];
       post.liked = !post.liked;
       post.likes = post.liked ? post.likes + 1 : post.likes - 1;
+      localStorage.setItem('updates', JSON.stringify(posts));
+      loadUpdates();
+    }
+
+    function togglePin(index) {
+      let posts = JSON.parse(localStorage.getItem('updates')) || [];
+      posts[index].pinned = !posts[index].pinned;
       localStorage.setItem('updates', JSON.stringify(posts));
       loadUpdates();
     }
@@ -145,21 +165,44 @@
       const updatesList = document.getElementById('updatesList');
       updatesList.innerHTML = "";
 
-      const posts = JSON.parse(localStorage.getItem('updates')) || [];
+      let posts = JSON.parse(localStorage.getItem('updates')) || [];
+      // Pinned posts first
+      posts.sort((a, b) => (b.pinned - a.pinned) || (b.timestamp - a.timestamp));
+
       posts.forEach((post, i) => {
         const postDiv = document.createElement("div");
         postDiv.className = "post";
 
         const header = document.createElement("div");
         header.className = "post-header";
+
+        const leftSide = document.createElement("div");
+        leftSide.style.display = "flex";
+        leftSide.style.alignItems = "center";
+
         if (post.profile.avatarUrl) {
           const img = document.createElement("img");
           img.src = post.profile.avatarUrl;
-          header.appendChild(img);
+          leftSide.appendChild(img);
         }
         const name = document.createElement("strong");
         name.textContent = post.profile.username;
-        header.appendChild(name);
+        leftSide.appendChild(name);
+
+        if (post.pinned) {
+          const pinLabel = document.createElement("span");
+          pinLabel.className = "pinned-label";
+          pinLabel.textContent = "📌 Pinned";
+          leftSide.appendChild(pinLabel);
+        }
+
+        const pinBtn = document.createElement("button");
+        pinBtn.className = "pin-btn";
+        pinBtn.textContent = post.pinned ? "Unpin" : "Pin";
+        pinBtn.onclick = () => togglePin(posts.indexOf(post));
+
+        header.appendChild(leftSide);
+        header.appendChild(pinBtn);
 
         const content = document.createElement("p");
         content.textContent = post.text;
@@ -167,7 +210,7 @@
         const likeBtn = document.createElement("button");
         likeBtn.className = "like-btn" + (post.liked ? " liked" : "");
         likeBtn.textContent = `❤ ${post.likes}`;
-        likeBtn.onclick = () => toggleLike(i);
+        likeBtn.onclick = () => toggleLike(posts.indexOf(post));
 
         // Comments section
         const commentsDiv = document.createElement("div");
@@ -185,7 +228,7 @@
         const inputId = "commentInput" + i;
         commentForm.innerHTML = `
           <input id="${inputId}" placeholder="Write a comment...">
-          <button onclick="addComment(${i}, '${inputId}')">Post</button>
+          <button onclick="addComment(${posts.indexOf(post)}, '${inputId}')">Post</button>
         `;
 
         postDiv.appendChild(header);
