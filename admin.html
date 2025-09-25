@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Grove Admin</title>
+<title>Admin Panel</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>Grove Admin Panel</h1>
+    <h1>Admin Panel</h1>
     <nav>
       <a href="index.html">Home</a>
       <a href="news.html">News</a>
@@ -17,19 +17,26 @@
   </header>
 
   <main>
-    <section id="stream-control">
+    <section id="login-section">
+      <h2>Admin Login</h2>
+      <label for="adminPassword">Temporary Password:</label>
+      <input type="text" id="adminPassword" value="Temp1234">
+      <button id="loginBtn">Login</button>
+    </section>
+
+    <section id="stream-control" style="display:none;">
       <h2>Live Stream Control</h2>
       <video id="adminStream" autoplay muted></video>
       <button id="startStream">Start Stream</button>
       <button id="stopStream">Stop Stream</button>
     </section>
 
-    <section id="recordings">
+    <section id="recordings" style="display:none;">
       <h2>Recorded Sessions</h2>
       <ul id="recordedList"></ul>
     </section>
 
-    <section id="admin-news">
+    <section id="admin-news" style="display:none;">
       <h2>Post News</h2>
       <input type="text" id="adminPost" placeholder="Write a news post...">
       <button id="adminPostBtn">Post</button>
