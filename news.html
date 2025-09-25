@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>News Feed</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Grove News</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>News Feed</h1>
+  <header>
+    <h1>Grove News</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="music.html">Music</a>
+      <a href="profile.html">Profile</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+  </header>
 
-  <!-- Admin / Member Posting Section -->
-  <div id="postSection" style="display:none;">
-    <textarea id="postContent" placeholder="Write your post..." rows="4"></textarea>
-    <input type="file" id="postImage" accept="image/*">
-    <button id="postBtn" class="button">Post</button>
-    <button id="pinPostBtn" class="button" style="display:none;">Pin Post</button>
-  </div>
+  <main>
+    <section id="news-feed">
+      <div id="feed"></div>
+    </section>
+  </main>
 
-  <!-- Posts Feed -->
-  <div id="feed"></div>
-
-  <a href="home.html" class="button">Back to Home</a>
-  <a href="https://your-grove-link.com" class="button" target="_blank">Visit Grove</a>
-
-  <script src="news.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
