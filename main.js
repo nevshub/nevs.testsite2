@@ -1,180 +1,231 @@
-// ==== Account Management ====
-let accounts = JSON.parse(localStorage.getItem('accounts')) || {};
-let currentUser = null;
-
-const authSection = document.getElementById('auth-section');
+// ======== Login & Account Management ========
+const loginSection = document.getElementById('login-section');
 const profileSection = document.getElementById('profile-section');
-const newsFeedSection = document.getElementById('news-feed-section');
+const newsSection = document.getElementById('news-section');
 const musicSection = document.getElementById('music-section');
 
-const usernameInput = document.getElementById('username');
-const passwordInput = document.getElementById('password');
 const loginBtn = document.getElementById('login-btn');
-const createBtn = document.getElementById('create-btn');
+const createAccountBtn = document.getElementById('create-account-btn');
+const loginUsername = document.getElementById('login-username');
+const loginPassword = document.getElementById('login-password');
 const authMsg = document.getElementById('auth-msg');
 
-loginBtn.addEventListener('click', () => {
-  const username = usernameInput.value.trim();
-  const password = passwordInput.value.trim();
+let currentUser = null;
 
-  if (accounts[username] && accounts[username].password === password) {
-    loginUser(username);
-  } else {
-    authMsg.textContent = "Invalid login!";
-  }
-});
-
-createBtn.addEventListener('click', () => {
-  const username = usernameInput.value.trim();
-  const password = passwordInput.value.trim();
-
-  if (!username || !password) {
-    authMsg.textContent = "Enter username & password!";
-    return;
-  }
-
-  if (accounts[username]) {
-    authMsg.textContent = "Username taken!";
-    return;
-  }
-
-  accounts[username] = {
-    password,
-    bio: "",
-    photo: "",
-    news: [],
-    music: []
-  };
-
-  localStorage.setItem('accounts', JSON.stringify(accounts));
-  loginUser(username);
-});
-
-function loginUser(username) {
-  currentUser = username;
-  authSection.classList.add('hidden');
-  profileSection.classList.remove('hidden');
-  newsFeedSection.classList.remove('hidden');
-  musicSection.classList.remove('hidden');
-  loadProfile();
-  loadNewsFeed();
-  loadMusic();
+// Check if any users exist in localStorage
+if (!localStorage.getItem('users')) {
+    localStorage.setItem('users', JSON.stringify({}));
 }
 
-// ==== Profile Management ====
-const profileUsername = document.getElementById('profile-username');
-const profilePhotoInput = document.getElementById('profile-photo-input');
-const uploadPhotoBtn = document.getElementById('upload-photo-btn');
-const profilePhotoPreview = document.getElementById('profile-photo-preview');
+// Helper to save user data
+function saveUsers(users) {
+    localStorage.setItem('users', JSON.stringify(users));
+}
+
+// Login
+loginBtn.addEventListener('click', () => {
+    const users = JSON.parse(localStorage.getItem('users'));
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value.trim();
+
+    if (users[username] && users[username].password === password) {
+        currentUser = username;
+        loadProfile();
+        loadNewsFeed();
+        loadMusic();
+        showSections();
+        authMsg.textContent = '';
+    } else {
+        authMsg.textContent = 'Invalid username or password';
+    }
+});
+
+// Create Account
+createAccountBtn.addEventListener('click', () => {
+    const users = JSON.parse(localStorage.getItem('users'));
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value.trim();
+
+    if (!username || !password) {
+        authMsg.textContent = 'Username & password required';
+        return;
+    }
+
+    if (users[username]) {
+        authMsg.textContent = 'Username already exists';
+        return;
+    }
+
+    users[username] = { password, profile: { bio: '', photo: '' }, posts: [], music: [] };
+    saveUsers(users);
+    authMsg.textContent = 'Account created! You can now login.';
+});
+
+// Show Profile, News & Music Sections
+function showSections() {
+    loginSection.classList.add('hidden');
+    profileSection.classList.remove('hidden');
+    newsSection.classList.remove('hidden');
+    musicSection.classList.remove('hidden');
+}
+
+// ======== Profile Management ========
+const profilePhoto = document.getElementById('profile-photo');
 const profileBio = document.getElementById('profile-bio');
+const profilePhotoPreview = document.getElementById('profile-photo-preview');
 const saveProfileBtn = document.getElementById('save-profile-btn');
 
+saveProfileBtn.addEventListener('click', () => {
+    const users = JSON.parse(localStorage.getItem('users'));
+    const userData = users[currentUser];
+
+    userData.profile.bio = profileBio.value;
+    userData.profile.photo = profilePhotoPreview.innerHTML;
+
+    users[currentUser] = userData;
+    saveUsers(users);
+    alert('Profile saved!');
+});
+
+profilePhoto.addEventListener('change', () => {
+    const file = profilePhoto.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        profilePhotoPreview.innerHTML = `<img src="${e.target.result}" alt="Profile Photo" style="max-width:100px; max-height:100px; border-radius:50%;">`;
+    };
+    reader.readAsDataURL(file);
+});
+
 function loadProfile() {
-  const user = accounts[currentUser];
-  profileUsername.textContent = currentUser;
-  profileBio.value = user.bio || "";
-  profilePhotoPreview.innerHTML = user.photo ? `<img src="${user.photo}" alt="Profile Photo" width="150">` : "";
+    const users = JSON.parse(localStorage.getItem('users'));
+    const userData = users[currentUser];
+
+    profileBio.value = userData.profile.bio;
+    profilePhotoPreview.innerHTML = userData.profile.photo || '';
 }
 
-uploadPhotoBtn.addEventListener('click', () => {
-  const file = profilePhotoInput.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    accounts[currentUser].photo = reader.result;
-    localStorage.setItem('accounts', JSON.stringify(accounts));
-    loadProfile();
-  };
-  reader.readAsDataURL(file);
-});
-
-saveProfileBtn.addEventListener('click', () => {
-  accounts[currentUser].bio = profileBio.value;
-  localStorage.setItem('accounts', JSON.stringify(accounts));
-  alert("Profile saved!");
-});
-
-// ==== News Feed ====
+// ======== News Feed ========
 const newsFeed = document.getElementById('news-feed');
+const newPost = document.getElementById('new-post');
+const postBtn = document.getElementById('post-btn');
+
+postBtn.addEventListener('click', () => {
+    const content = newPost.value.trim();
+    if (!content) return;
+
+    const users = JSON.parse(localStorage.getItem('users'));
+    const userData = users[currentUser];
+
+    const postObj = { user: currentUser, content, date: new Date().toLocaleString() };
+    userData.posts.push(postObj);
+
+    users[currentUser] = userData;
+    saveUsers(users);
+    newPost.value = '';
+    loadNewsFeed();
+});
 
 function loadNewsFeed() {
-  newsFeed.innerHTML = "";
-  for (let user in accounts) {
-    const userPosts = accounts[user].news || [];
-    userPosts.forEach(post => {
-      const div = document.createElement('div');
-      div.classList.add('post');
-      div.innerHTML = `<strong>${user}:</strong> ${post}`;
-      newsFeed.appendChild(div);
+    newsFeed.innerHTML = '';
+    const users = JSON.parse(localStorage.getItem('users'));
+    let allPosts = [];
+
+    for (const user in users) {
+        allPosts = allPosts.concat(users[user].posts);
+    }
+
+    // Sort posts newest first
+    allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    allPosts.forEach(post => {
+        const div = document.createElement('div');
+        div.classList.add('post');
+        div.innerHTML = `<strong>${post.user}</strong> <em>${post.date}</em><p>${post.content}</p>`;
+        newsFeed.appendChild(div);
     });
-  }
 }
 
-// Optional: add new post functionality
-// (Could add a textarea and button if you want posting live)
-
-// ==== Music Player ====
-const musicInput = document.getElementById('music-input');
-const addMusicBtn = document.getElementById('add-music-btn');
+// ======== Music Player ========
+const musicUpload = document.getElementById('music-upload');
 const musicList = document.getElementById('music-list');
 const audioPlayer = document.getElementById('audio-player');
-const visualizer = document.getElementById('music-visualizer');
-const ctx = visualizer.getContext('2d');
+const musicVisualizer = document.getElementById('music-visualizer');
+const canvasCtx = musicVisualizer.getContext('2d');
 
-addMusicBtn.addEventListener('click', () => {
-  const file = musicInput.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    accounts[currentUser].music.push({name: file.name, src: reader.result});
-    localStorage.setItem('accounts', JSON.stringify(accounts));
-    loadMusic();
-  };
-  reader.readAsDataURL(file);
+musicUpload.addEventListener('change', () => {
+    const files = Array.from(musicUpload.files);
+    const users = JSON.parse(localStorage.getItem('users'));
+    const userData = users[currentUser];
+
+    files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            userData.music.push({ name: file.name, data: e.target.result });
+            saveUsers(users);
+            loadMusic();
+        };
+        reader.readAsDataURL(file);
+    });
 });
 
 function loadMusic() {
-  musicList.innerHTML = "";
-  accounts[currentUser].music.forEach((track, i) => {
-    const btn = document.createElement('button');
-    btn.textContent = track.name;
-    btn.addEventListener('click', () => {
-      audioPlayer.src = track.src;
-      audioPlayer.play();
+    const users = JSON.parse(localStorage.getItem('users'));
+    const userData = users[currentUser];
+    musicList.innerHTML = '';
+
+    userData.music.forEach((track, index) => {
+        const div = document.createElement('div');
+        div.textContent = track.name;
+        div.classList.add('track');
+        div.addEventListener('click', () => {
+            audioPlayer.src = track.data;
+            audioPlayer.play();
+            startVisualizer();
+        });
+        musicList.appendChild(div);
     });
-    musicList.appendChild(btn);
-  });
 }
 
-// ==== Basic Visualizer ====
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const analyser = audioCtx.createAnalyser();
-let source;
+// ======== Music Visualizer ========
+let audioCtx, analyser, source, dataArray;
 
-audioPlayer.addEventListener('play', () => {
-  if (source) source.disconnect();
-  source = audioCtx.createMediaElementSource(audioPlayer);
-  source.connect(analyser);
-  analyser.connect(audioCtx.destination);
-  visualizerLoop();
+function startVisualizer() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        source = audioCtx.createMediaElementSource(audioPlayer);
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        analyser.fftSize = 256;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+    }
+
+    function draw() {
+        requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(dataArray);
+
+        canvasCtx.fillStyle = '#2a0b3d';
+        canvasCtx.fillRect(0, 0, musicVisualizer.width, musicVisualizer.height);
+
+        const barWidth = (musicVisualizer.width / dataArray.length) * 2.5;
+        let x = 0;
+
+        for (let i = 0; i < dataArray.length; i++) {
+            const barHeight = dataArray[i];
+            canvasCtx.fillStyle = `rgb(${barHeight + 100},50,${barHeight + 50})`;
+            canvasCtx.fillRect(x, musicVisualizer.height - barHeight / 2, barWidth, barHeight / 2);
+            x += barWidth + 1;
+        }
+    }
+
+    draw();
+}
+
+// Resize canvas
+window.addEventListener('resize', () => {
+    musicVisualizer.width = musicVisualizer.offsetWidth;
+    musicVisualizer.height = 100;
 });
-
-function visualizerLoop() {
-  requestAnimationFrame(visualizerLoop);
-  const bufferLength = analyser.frequencyBinCount;
-  const dataArray = new Uint8Array(bufferLength);
-  analyser.getByteFrequencyData(dataArray);
-
-  ctx.fillStyle = "#220033";
-  ctx.fillRect(0, 0, visualizer.width, visualizer.height);
-
-  const barWidth = (visualizer.width / bufferLength) * 2.5;
-  let x = 0;
-
-  for (let i = 0; i < bufferLength; i++) {
-    const barHeight = dataArray[i] / 2;
-    ctx.fillStyle = `rgb(${barHeight+100}, 50, 200)`;
-    ctx.fillRect(x, visualizer.height - barHeight, barWidth, barHeight);
-    x += barWidth + 1;
-  }
-}
+musicVisualizer.width = musicVisualizer.offsetWidth;
+musicVisualizer.height = 100;
