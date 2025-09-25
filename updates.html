@@ -12,7 +12,6 @@
       background: #1c1c1c;
       border-radius: 12px;
     }
-    .updates-container input,
     .updates-container textarea {
       width: 100%;
       margin: 8px 0;
@@ -60,6 +59,37 @@
     .like-btn.liked {
       color: #ff3333;
     }
+    .comments {
+      margin-top: 15px;
+      padding-left: 10px;
+      border-left: 2px solid #444;
+    }
+    .comment {
+      margin: 6px 0;
+      background: #1c1c1c;
+      padding: 6px 10px;
+      border-radius: 6px;
+    }
+    .comment strong {
+      color: #ff6600;
+    }
+    .comment-form {
+      display: flex;
+      margin-top: 10px;
+    }
+    .comment-form input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      background: #2a2a2a;
+      color: #fff;
+    }
+    .comment-form button {
+      margin-left: 8px;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
@@ -78,7 +108,7 @@
       if (!text) return;
 
       const profile = JSON.parse(localStorage.getItem('profile')) || { username: "Guest", avatarUrl: "" };
-      const newPost = { text, profile, likes: 0, timestamp: Date.now() };
+      const newPost = { text, profile, likes: 0, liked: false, comments: [], timestamp: Date.now() };
 
       let posts = JSON.parse(localStorage.getItem('updates')) || [];
       posts.unshift(newPost);
@@ -94,6 +124,20 @@
       post.liked = !post.liked;
       post.likes = post.liked ? post.likes + 1 : post.likes - 1;
       localStorage.setItem('updates', JSON.stringify(posts));
+      loadUpdates();
+    }
+
+    function addComment(index, inputId) {
+      const input = document.getElementById(inputId);
+      const text = input.value;
+      if (!text) return;
+
+      const profile = JSON.parse(localStorage.getItem('profile')) || { username: "Guest", avatarUrl: "" };
+      let posts = JSON.parse(localStorage.getItem('updates')) || [];
+      posts[index].comments.push({ text, profile });
+      localStorage.setItem('updates', JSON.stringify(posts));
+
+      input.value = "";
       loadUpdates();
     }
 
@@ -125,9 +169,30 @@
         likeBtn.textContent = `❤ ${post.likes}`;
         likeBtn.onclick = () => toggleLike(i);
 
+        // Comments section
+        const commentsDiv = document.createElement("div");
+        commentsDiv.className = "comments";
+        post.comments.forEach(c => {
+          const cDiv = document.createElement("div");
+          cDiv.className = "comment";
+          cDiv.innerHTML = `<strong>${c.profile.username}:</strong> ${c.text}`;
+          commentsDiv.appendChild(cDiv);
+        });
+
+        // Comment form
+        const commentForm = document.createElement("div");
+        commentForm.className = "comment-form";
+        const inputId = "commentInput" + i;
+        commentForm.innerHTML = `
+          <input id="${inputId}" placeholder="Write a comment...">
+          <button onclick="addComment(${i}, '${inputId}')">Post</button>
+        `;
+
         postDiv.appendChild(header);
         postDiv.appendChild(content);
         postDiv.appendChild(likeBtn);
+        postDiv.appendChild(commentsDiv);
+        postDiv.appendChild(commentForm);
 
         updatesList.appendChild(postDiv);
       });
