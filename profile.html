@@ -2,138 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Updates</title>
+  <title>Profile</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    .updates-container {
-      max-width: 600px;
-      margin: 40px auto;
-      padding: 20px;
-      background: #1c1c1c;
-      border-radius: 12px;
-    }
-    .updates-container input,
-    .updates-container textarea {
-      width: 100%;
-      margin: 8px 0;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #2a2a2a;
-      color: #fff;
-    }
-    .updates-container button {
-      background: #444;
-      color: #fff;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .updates-container button:hover {
-      background: #666;
-    }
-    .post {
-      margin-top: 20px;
-      padding: 15px;
-      background: #2a2a2a;
-      border-radius: 8px;
-    }
-    .post-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .post-header img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      margin-right: 10px;
-    }
-    .like-btn {
-      background: none;
-      border: none;
-      color: #ff6600;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-    .like-btn.liked {
-      color: #ff3333;
-    }
-  </style>
 </head>
 <body>
-  <div class="updates-container">
-    <h2>Post an Update</h2>
-    <textarea id="updateInput" placeholder="Write something..."></textarea>
-    <button onclick="postUpdate()">Post</button>
+  <h1>Create / Edit Profile</h1>
 
-    <h3>Recent Updates</h3>
-    <div id="updatesList"></div>
-  </div>
+  <form id="profileForm" enctype="multipart/form-data">
+    <input type="text" name="username" placeholder="Username" required><br>
+    <textarea name="bio" placeholder="Your bio here..." required></textarea><br>
+    <input type="file" name="photo" accept="image/*"><br>
+    <button type="submit">Save Profile</button>
+  </form>
+
+  <h2>Profiles</h2>
+  <div id="profiles"></div>
 
   <script>
-    function postUpdate() {
-      const text = document.getElementById('updateInput').value;
-      if (!text) return;
-
-      const profile = JSON.parse(localStorage.getItem('profile')) || { username: "Guest", avatarUrl: "" };
-      const newPost = { text, profile, likes: 0, timestamp: Date.now() };
-
-      let posts = JSON.parse(localStorage.getItem('updates')) || [];
-      posts.unshift(newPost);
-      localStorage.setItem('updates', JSON.stringify(posts));
-
-      document.getElementById('updateInput').value = "";
-      loadUpdates();
-    }
-
-    function toggleLike(index) {
-      let posts = JSON.parse(localStorage.getItem('updates')) || [];
-      const post = posts[index];
-      post.liked = !post.liked;
-      post.likes = post.liked ? post.likes + 1 : post.likes - 1;
-      localStorage.setItem('updates', JSON.stringify(posts));
-      loadUpdates();
-    }
-
-    function loadUpdates() {
-      const updatesList = document.getElementById('updatesList');
-      updatesList.innerHTML = "";
-
-      const posts = JSON.parse(localStorage.getItem('updates')) || [];
-      posts.forEach((post, i) => {
-        const postDiv = document.createElement("div");
-        postDiv.className = "post";
-
-        const header = document.createElement("div");
-        header.className = "post-header";
-        if (post.profile.avatarUrl) {
-          const img = document.createElement("img");
-          img.src = post.profile.avatarUrl;
-          header.appendChild(img);
-        }
-        const name = document.createElement("strong");
-        name.textContent = post.profile.username;
-        header.appendChild(name);
-
-        const content = document.createElement("p");
-        content.textContent = post.text;
-
-        const likeBtn = document.createElement("button");
-        likeBtn.className = "like-btn" + (post.liked ? " liked" : "");
-        likeBtn.textContent = `❤ ${post.likes}`;
-        likeBtn.onclick = () => toggleLike(i);
-
-        postDiv.appendChild(header);
-        postDiv.appendChild(content);
-        postDiv.appendChild(likeBtn);
-
-        updatesList.appendChild(postDiv);
+    async function loadProfiles() {
+      const res = await fetch("/profiles");
+      const profiles = await res.json();
+      const container = document.getElementById("profiles");
+      container.innerHTML = "";
+      profiles.forEach(p => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <h3>${p.username}</h3>
+          <p>${p.bio}</p>
+          ${p.photo ? `<img src="${p.photo}" width="150">` : ""}
+        `;
+        container.appendChild(div);
       });
     }
 
-    window.onload = loadUpdates;
+    document.getElementById("profileForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const res = await fetch("/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.success) {
+        alert("Profile saved!");
+        loadProfiles();
+      }
+    });
+
+    loadProfiles();
   </script>
 </body>
 </html>
