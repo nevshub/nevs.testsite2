@@ -1,117 +1,93 @@
-/* ==================== Global Styles ==================== */
 body {
   margin: 0;
   padding: 0;
-  background-color: #111; /* Dark background */
-  color: #fff; /* White text */
   font-family: 'Arial', sans-serif;
+  background-color: #111;
+  color: #fff;
+}
+
+.centered-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh; /* Full viewport height */
   flex-direction: column;
-  text-align: center;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding: 20px;
+  gap: 20px;
 }
 
-/* ==================== Headings ==================== */
-h1 {
-  font-size: 3rem;
-  margin-bottom: 20px;
-  text-shadow: 0 0 10px #ff66cc, 0 0 20px #ff33ff;
-}
+.hidden { display: none; }
 
-h2 {
-  font-size: 2rem;
-  margin-bottom: 15px;
-  text-shadow: 0 0 8px #66ccff, 0 0 15px #3399ff;
-}
-
-/* ==================== Links / Buttons ==================== */
-a.button, button {
-  display: inline-block;
-  margin: 10px;
-  padding: 12px 25px;
-  font-size: 1.1rem;
-  color: #fff;
-  background-color: #222; /* Slightly darker button */
-  border: 2px solid #ff33ff;
-  border-radius: 12px;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 10px #ff33ff, 0 0 20px #ff66cc;
-}
-
-a.button:hover, button:hover {
-  background-color: #333;
-  box-shadow: 0 0 20px #ff33ff, 0 0 30px #ff66cc;
-  transform: scale(1.05);
-}
-
-/* ==================== Input Fields ==================== */
-input[type="text"], input[type="password"] {
-  padding: 10px 15px;
-  margin: 10px 0;
-  border-radius: 8px;
-  border: 2px solid #ff33ff;
-  background-color: #222;
-  color: #fff;
-  font-size: 1rem;
-  width: 250px;
-  box-shadow: 0 0 8px #ff33ff;
-}
-
-input::placeholder {
-  color: #aaa;
-}
-
-/* ==================== Music Player ==================== */
-.audio-player {
-  margin-top: 20px;
-  background-color: #222;
-  border: 2px solid #ff33ff;
-  border-radius: 15px;
-  padding: 15px;
-  box-shadow: 0 0 10px #ff33ff;
-  width: 300px;
-}
-
-.audio-player audio {
-  width: 100%;
-  outline: none;
-}
-
-/* ==================== Posts / Profile ==================== */
-.profile-section, .posts-section {
-  margin-top: 20px;
-  width: 90%;
-  max-width: 600px;
-  background-color: #1a1a1a;
-  border-radius: 15px;
-  padding: 15px;
-  box-shadow: 0 0 15px #ff33ff;
-  text-align: left;
-}
-
-.post {
-  margin-bottom: 15px;
+input, textarea, button {
   padding: 10px;
-  border-bottom: 1px solid #ff33ff;
+  margin: 5px 0;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
 }
 
-/* ==================== Uploaded Images ==================== */
-.uploaded-image {
-  margin: 10px;
-  max-width: 100%;
+button {
+  cursor: pointer;
+  background-color: #222;
+  color: #fff;
+  transition: 0.2s;
+}
+
+button:hover {
+  background-color: #444;
+}
+
+.profile-section, .post-section, .music-section, .photo-section {
+  width: 80%;
+  max-width: 600px;
+  margin: 10px 0;
+}
+
+#posts-container .post {
+  background-color: #222;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 8px;
+}
+
+#music-list li {
+  list-style: none;
+  cursor: pointer;
+  margin: 5px 0;
+  color: #ff88ff;
+}
+
+#music-list li:hover {
+  color: #ff00ff;
+}
+
+.photo-section img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  margin: 5px;
+  border-radius: 10px;
+}
+
+#stream-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #222;
+  padding: 20px;
   border-radius: 12px;
-  border: 2px solid #ff33ff;
-  box-shadow: 0 0 10px #ff33ff;
+  z-index: 1000;
 }
 
-/* ==================== Center Everything Container ==================== */
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+#stream-video {
+  width: 500px;
+  max-width: 90vw;
+  border-radius: 10px;
+}
+
+canvas {
+  width: 100%;
+  max-width: 600px;
+  border-radius: 10px;
 }
