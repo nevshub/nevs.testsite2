@@ -1,111 +1,180 @@
-// ----- Storage Setup -----
-let users = JSON.parse(localStorage.getItem("users")) || [];
-let posts = JSON.parse(localStorage.getItem("posts")) || [];
-
-// ----- Elements -----
-const loginContainer = document.getElementById("login-container");
-const profileContainer = document.getElementById("profile-container");
-const loginBtn = document.getElementById("login-btn");
-const createAccountBtn = document.getElementById("create-account-btn");
-const logoutBtn = document.getElementById("logout-btn");
-const loginUsername = document.getElementById("login-username");
-const loginPassword = document.getElementById("login-password");
-
-const profileName = document.getElementById("profile-name");
-const postText = document.getElementById("post-text");
-const addPostBtn = document.getElementById("add-post-btn");
-const newsfeedDiv = document.getElementById("newsfeed");
-const musicFile = document.getElementById("music-file");
-const addMusicBtn = document.getElementById("add-music-btn");
-const musicList = document.getElementById("music-list");
-
+// ==== Account Management ====
+let accounts = JSON.parse(localStorage.getItem('accounts')) || {};
 let currentUser = null;
 
-// ----- Functions -----
-function saveUsers() { localStorage.setItem("users", JSON.stringify(users)); }
-function savePosts() { localStorage.setItem("posts", JSON.stringify(posts)); }
+const authSection = document.getElementById('auth-section');
+const profileSection = document.getElementById('profile-section');
+const newsFeedSection = document.getElementById('news-feed-section');
+const musicSection = document.getElementById('music-section');
 
-function showProfile(user){
-  currentUser = user;
-  loginContainer.classList.add("hidden");
-  profileContainer.classList.remove("hidden");
-  profileName.textContent = user.username;
+const usernameInput = document.getElementById('username');
+const passwordInput = document.getElementById('password');
+const loginBtn = document.getElementById('login-btn');
+const createBtn = document.getElementById('create-btn');
+const authMsg = document.getElementById('auth-msg');
 
-  renderPosts();
-  renderMusic();
-}
+loginBtn.addEventListener('click', () => {
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
 
-function renderPosts(){
-  newsfeedDiv.innerHTML = "";
-  posts.forEach(p => {
-    let div = document.createElement("div");
-    div.textContent = `${p.username}: ${p.text}`;
-    newsfeedDiv.appendChild(div);
-  });
-}
-
-function renderMusic(){
-  musicList.innerHTML = "";
-  if(!currentUser.music) currentUser.music = [];
-  currentUser.music.forEach((m, i) => {
-    let audio = document.createElement("audio");
-    audio.controls = true;
-    audio.src = m;
-    musicList.appendChild(audio);
-  });
-}
-
-// ----- Event Listeners -----
-loginBtn.addEventListener("click", () => {
-  const username = loginUsername.value.trim();
-  const password = loginPassword.value.trim();
-
-  let user = users.find(u => u.username === username && u.password === password);
-  if(user){
-    showProfile(user);
+  if (accounts[username] && accounts[username].password === password) {
+    loginUser(username);
   } else {
-    alert("Incorrect login!");
+    authMsg.textContent = "Invalid login!";
   }
 });
 
-createAccountBtn.addEventListener("click", () => {
-  const username = prompt("Enter new username:");
-  const password = prompt("Enter new password:");
-  if(!username || !password) return;
+createBtn.addEventListener('click', () => {
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
 
-  if(users.find(u => u.username === username)){
-    alert("Username already exists!");
+  if (!username || !password) {
+    authMsg.textContent = "Enter username & password!";
     return;
   }
 
-  let newUser = { username, password, music: [] };
-  users.push(newUser);
-  saveUsers();
-  alert("Account created!");
+  if (accounts[username]) {
+    authMsg.textContent = "Username taken!";
+    return;
+  }
+
+  accounts[username] = {
+    password,
+    bio: "",
+    photo: "",
+    news: [],
+    music: []
+  };
+
+  localStorage.setItem('accounts', JSON.stringify(accounts));
+  loginUser(username);
 });
 
-logoutBtn.addEventListener("click", () => {
-  profileContainer.classList.add("hidden");
-  loginContainer.classList.remove("hidden");
-  currentUser = null;
-});
+function loginUser(username) {
+  currentUser = username;
+  authSection.classList.add('hidden');
+  profileSection.classList.remove('hidden');
+  newsFeedSection.classList.remove('hidden');
+  musicSection.classList.remove('hidden');
+  loadProfile();
+  loadNewsFeed();
+  loadMusic();
+}
 
-addPostBtn.addEventListener("click", () => {
-  if(postText.value.trim() === "") return;
-  posts.push({ username: currentUser.username, text: postText.value });
-  savePosts();
-  postText.value = "";
-  renderPosts();
-});
+// ==== Profile Management ====
+const profileUsername = document.getElementById('profile-username');
+const profilePhotoInput = document.getElementById('profile-photo-input');
+const uploadPhotoBtn = document.getElementById('upload-photo-btn');
+const profilePhotoPreview = document.getElementById('profile-photo-preview');
+const profileBio = document.getElementById('profile-bio');
+const saveProfileBtn = document.getElementById('save-profile-btn');
 
-addMusicBtn.addEventListener("click", () => {
-  if(musicFile.files.length === 0) return;
-  const file = musicFile.files[0];
+function loadProfile() {
+  const user = accounts[currentUser];
+  profileUsername.textContent = currentUser;
+  profileBio.value = user.bio || "";
+  profilePhotoPreview.innerHTML = user.photo ? `<img src="${user.photo}" alt="Profile Photo" width="150">` : "";
+}
+
+uploadPhotoBtn.addEventListener('click', () => {
+  const file = profilePhotoInput.files[0];
+  if (!file) return;
   const reader = new FileReader();
-  reader.onload = function(e){
-    currentUser.music.push(e.target.result);
-    saveUsers();
-    renderMusic();
+  reader.onload = () => {
+    accounts[currentUser].photo = reader.result;
+    localStorage.setItem('accounts', JSON.stringify(accounts));
+    loadProfile();
   };
   reader.readAsDataURL(file);
 });
+
+saveProfileBtn.addEventListener('click', () => {
+  accounts[currentUser].bio = profileBio.value;
+  localStorage.setItem('accounts', JSON.stringify(accounts));
+  alert("Profile saved!");
+});
+
+// ==== News Feed ====
+const newsFeed = document.getElementById('news-feed');
+
+function loadNewsFeed() {
+  newsFeed.innerHTML = "";
+  for (let user in accounts) {
+    const userPosts = accounts[user].news || [];
+    userPosts.forEach(post => {
+      const div = document.createElement('div');
+      div.classList.add('post');
+      div.innerHTML = `<strong>${user}:</strong> ${post}`;
+      newsFeed.appendChild(div);
+    });
+  }
+}
+
+// Optional: add new post functionality
+// (Could add a textarea and button if you want posting live)
+
+// ==== Music Player ====
+const musicInput = document.getElementById('music-input');
+const addMusicBtn = document.getElementById('add-music-btn');
+const musicList = document.getElementById('music-list');
+const audioPlayer = document.getElementById('audio-player');
+const visualizer = document.getElementById('music-visualizer');
+const ctx = visualizer.getContext('2d');
+
+addMusicBtn.addEventListener('click', () => {
+  const file = musicInput.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    accounts[currentUser].music.push({name: file.name, src: reader.result});
+    localStorage.setItem('accounts', JSON.stringify(accounts));
+    loadMusic();
+  };
+  reader.readAsDataURL(file);
+});
+
+function loadMusic() {
+  musicList.innerHTML = "";
+  accounts[currentUser].music.forEach((track, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = track.name;
+    btn.addEventListener('click', () => {
+      audioPlayer.src = track.src;
+      audioPlayer.play();
+    });
+    musicList.appendChild(btn);
+  });
+}
+
+// ==== Basic Visualizer ====
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const analyser = audioCtx.createAnalyser();
+let source;
+
+audioPlayer.addEventListener('play', () => {
+  if (source) source.disconnect();
+  source = audioCtx.createMediaElementSource(audioPlayer);
+  source.connect(analyser);
+  analyser.connect(audioCtx.destination);
+  visualizerLoop();
+});
+
+function visualizerLoop() {
+  requestAnimationFrame(visualizerLoop);
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+  analyser.getByteFrequencyData(dataArray);
+
+  ctx.fillStyle = "#220033";
+  ctx.fillRect(0, 0, visualizer.width, visualizer.height);
+
+  const barWidth = (visualizer.width / bufferLength) * 2.5;
+  let x = 0;
+
+  for (let i = 0; i < bufferLength; i++) {
+    const barHeight = dataArray[i] / 2;
+    ctx.fillStyle = `rgb(${barHeight+100}, 50, 200)`;
+    ctx.fillRect(x, visualizer.height - barHeight, barWidth, barHeight);
+    x += barWidth + 1;
+  }
+}
