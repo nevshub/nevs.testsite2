@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Profile</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Profile</h1>
+  <p>Username: <span id="profileName"></span></p>
+  <h2>Your Posts</h2>
+  <div id="profilePosts"></div>
+
+  <script>
+    const username = localStorage.getItem("loggedInUser") || "Guest";
+    document.getElementById("profileName").innerText = username;
+
+    const updates = JSON.parse(localStorage.getItem("updates") || "[]");
+    const profilePostsDiv = document.getElementById("profilePosts");
+
+    const userPosts = updates.filter(u => u.author === username);
+    if(userPosts.length === 0) profilePostsDiv.innerText = "No posts yet.";
+
+    userPosts.forEach(update => {
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <h3>${update.title}</h3>
+        <p>${update.content}</p>
+        <small>Posted: ${update.timestamp}</small>
+        <hr>
+      `;
+      profilePostsDiv.appendChild(div);
+    });
+  </script>
+</body>
+</html>
